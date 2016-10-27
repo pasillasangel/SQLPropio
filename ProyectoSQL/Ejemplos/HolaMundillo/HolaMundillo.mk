@@ -3,10 +3,10 @@
 ## any manual changes will be erased      
 ##
 ## Debug
-ProjectName            :=HolaMundoEjemplo
+ProjectName            :=HolaMundillo
 ConfigurationName      :=Debug
-WorkspacePath          :="C:/Users/Angel Pasillas/Documents/SQLPropio/ProyectoSQL"
-ProjectPath            :="C:/Users/Angel Pasillas/Documents/SQLPropio/ProyectoSQL/HolaMundoEjemplo"
+WorkspacePath          :="C:/Users/Angel Pasillas/Documents/SQLPropio/ProyectoSQL/Ejemplos"
+ProjectPath            :="C:/Users/Angel Pasillas/Documents/SQLPropio/ProyectoSQL/Ejemplos/HolaMundillo"
 IntermediateDirectory  :=./Debug
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
@@ -15,12 +15,12 @@ CurrentFileFullPath    :=
 User                   :=Angel Pasillas
 Date                   :=27/10/2016
 CodeLitePath           :="C:/Program Files/CodeLite"
-LinkerName             :=gcc
-SharedObjectLinkerName :=gcc -shared -fPIC
+LinkerName             :=g++
+SharedObjectLinkerName :=g++ -shared -fPIC
 ObjectSuffix           :=.o
 DependSuffix           :=.o.d
 PreprocessSuffix       :=.o.i
-DebugSwitch            :=-g 
+DebugSwitch            :=-gstab
 IncludeSwitch          :=-I
 LibrarySwitch          :=-l
 OutputSwitch           :=-o 
@@ -32,7 +32,7 @@ Preprocessors          :=
 ObjectSwitch           :=-o 
 ArchiveOutputSwitch    := 
 PreprocessOnlySwitch   :=-E 
-ObjectsFileList        :="HolaMundoEjemplo.txt"
+ObjectsFileList        :="HolaMundillo.txt"
 PCHCompileFlags        :=
 MakeDirCommand         :=makedir
 RcCmpOptions           := 
@@ -50,7 +50,7 @@ LibPath                := $(LibraryPathSwitch).
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overriden using an environment variables
 ##
 AR       := ar rcus
-CXX      := gcc
+CXX      := g++
 CC       := gcc
 CXXFLAGS :=  -g -O0 -Wall $(Preprocessors)
 CFLAGS   :=  -g -O0 -Wall $(Preprocessors)
@@ -94,7 +94,7 @@ PreBuild:
 ## Objects
 ##
 $(IntermediateDirectory)/main.cpp$(ObjectSuffix): main.cpp $(IntermediateDirectory)/main.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/Angel Pasillas/Documents/SQLPropio/ProyectoSQL/HolaMundoEjemplo/main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/Angel Pasillas/Documents/SQLPropio/ProyectoSQL/Ejemplos/HolaMundillo/main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/main.cpp$(DependSuffix): main.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/main.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/main.cpp$(DependSuffix) -MM main.cpp
 
