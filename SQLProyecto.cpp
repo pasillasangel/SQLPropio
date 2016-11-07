@@ -29,11 +29,13 @@ regex cLimpiar("^(-l)$");
 regex cComando("^(-com)$");
 regex cAyuda("^(-a)$");
 regex cUsuario("^(usuario|USUARIO)$");
+regex cEliminarUsuarios("^(eliminar usuarios|ELIMINAR USUARIOS)$");
 regex cMostrarUsuariosAdmin("^(mostrar usuarios administradores|MOSTRAR USUARIOS ADMINISTRADORES)$");
 regex cMostrarUsuariosComunes("^(mostrar usuarios comunes|MOSTRAR USUARIOS COMUNES)$");
 regex cMostrarBaseDatos("^(mostrar basedatos|MOSTRAR BASEDATOS)$");
 regex cCrearBaseDatos("^(crear basedatos\\s(\\w)+|CREAR BASEDATOS\\s(\\w)+)$");
 regex cUsarBaseDatos("^(usar basedatos\\s(\\w)+|USAR BASEDATOS\\s(\\w)+)$");
+regex cEliminarBaseDatos("^(eliminar basedatos\\s(\\w)+|ELIMINAR BASEDATOS\\s(\\w)+)$");
 
 //TIPOS
 typedef char TCadena[MAXCAD+1]; // MAXCAD caracteres + FINCAD
@@ -78,7 +80,10 @@ void Comando_Comandos();
 void Comando_Mostrar_Usuarios_Admin();
 void Comando_Mostrar_Usuarios_Comunes();
 void Comando_Mostrar_BaseDatos();
+void Comando_Eliminar_BD(string ruta);
+void Comando_Eliminar_Usuarios();
 bool Buscar_Bd(string dir);
+bool is_file(string file);
 
 //Metodo principal
 int main()
@@ -658,13 +663,39 @@ void PrincipalADMIN(TCadena nombreFichero)
 
             if (Buscar_Bd(rutaDefinitiva))
             {
-                cout<<" -> Ya existe una base de datos con el nombre: '"<< nombreBaseDatos <<"'. Intenta con otro nombre. <-"<<endl;
+                cout<<" -> Ya existe una base de datos con el nombre: '"<< tempNombre <<"'. Intenta con otro nombre. <-"<<endl;
             }
             else
             {
                 mkdir(rutaDefinitiva.c_str());
                 cout<<"-> Creada satisfactoriamente la base de datos '"<< tempNombre <<"' <-"<<endl;
             }
+        }
+        else if(regex_match(consulta, cEliminarBaseDatos))
+        {
+            string rutabasedatos = "c:\\BaseDeDatos\\BD\\";
+            string tempNombre;
+            istringstream isstream(consulta);
+            while(!isstream.eof()){
+                string tempStr;
+                isstream >> tempStr;
+                tempNombre = tempStr;
+            }
+            string rutaDefinitiva = rutabasedatos + tempNombre;
+
+            if (Buscar_Bd(rutaDefinitiva))
+            {
+                Comando_Eliminar_BD(rutaDefinitiva);
+                cout<<" -> La base de datos '"<< tempNombre <<"' se ha eliminado correctamente. <-"<<endl;
+            }
+            else
+            {
+                cout<<"-> La base de datos '"<< tempNombre <<"' que desea eliminar no existe. <-"<<endl;
+            }
+        }
+        else if(regex_match(consulta,cEliminarUsuarios))
+        {
+            Comando_Eliminar_Usuarios();
         }
         else
         {
@@ -676,9 +707,58 @@ void PrincipalADMIN(TCadena nombreFichero)
 
 }
 
+void Comando_Eliminar_Usuarios()
+{
+    cout<<"Eliminara un usuario del Rango:"<<endl;
+	cout<<"\t1.- Administrador"<<endl;
+	cout<<"\t2.- Comun"<<endl;
+	cout<<""<<endl;
+
+	char tipoUsuario = 0;
+	string dir;
+	string nombreUsuario;
+
+	cout<<"Opcion: "; cin >> tipoUsuario;
+
+	if(tipoUsuario=='1')
+	{
+	    string dir = "c:\\BaseDeDatos\\Usuarios\\Admin\\";
+		cout<<"Ingrese el nombre de Usuario: "; cin >> nombreUsuario;
+		string rutadefinitiva = dir + nombreUsuario;
+		if(is_file(rutadefinitiva))
+        {
+            cout<<" -> EL Usuario '"<< nombreUsuario <<"' ha sido eliminado correctamente. <-"<<endl;
+        }
+        else
+        {
+            cout<<"-> El Usuario '"<< nombreUsuario <<"' que desea eliminar no existe. <-"<<endl;
+        }
+
+	}
+	else if(tipoUsuario=='2')
+	{
+	    string dir = "c:\\BaseDeDatos\\Usuarios\\Comunes\\";
+		cout<<"Ingrese el nombre de Usuario: "; cin >> nombreUsuario;
+		string rutadefinitiva = dir + nombreUsuario;
+		if(is_file(rutadefinitiva))
+        {
+            cout<<" -> El Usuario '"<< nombreUsuario <<"' ha sido eliminado correctamente. <-"<<endl;
+        }
+        else
+        {
+            cout<<"-> El Usuario '"<< nombreUsuario <<"' que desea eliminar no existe. <-"<<endl;
+        }
+
+	}
+	else
+    {
+        cout<<" -> Ingrese una Opcion Correcta. <-"<<endl;
+    }
+}
+
 void Comando_Crear_Usuarios()
 {
-	cout<<"Creara un Usuario con Privilegios de:"<<endl;
+	cout<<"Creara un Usuario con Rango de:"<<endl;
 	cout<<"\t1.- Administrador"<<endl;
 	cout<<"\t2.- Comunes"<<endl;
 	cout<<""<<endl;
@@ -822,34 +902,60 @@ bool Buscar_Bd(string dir)
     }
 }
 
-	/*
-	//CREAR UNA BASE DE DATOS
+bool is_dir(string dir)
+{
+  DIR * directorio;
+  if (directorio = opendir(dir.c_str()))
+  {
+    closedir(directorio);
+    return true;
+  }
+  else
+  {
+   return false;
+  }
+}
 
-	string nombre;
-	string ruta = "c:/BaseDeDatos/BD";
-	gotoxy(40,18);cout<<"Ingrese el Nombre de la Base de Datos: "<<endl;
-	cin>> nombre;
-	string ruta_absoluta = ruta + nombre;
-	if (mkdir(ruta_absoluta.c_str()) == 0) cout << "La base de Datos se ha creado Correctamente" << endl;
-    else cout << "La base de datos ya existe." << endl;
-    pausaSinMensaje();
-    */
+bool is_file(string file)
+{
+ FILE * archivo;
+ if (archivo = fopen(file.c_str(), "r"))
+ {
+  fclose(archivo);
+  return true;
+ }
+ else
+ {
+  return false;
+ }
+}
 
-
-    /*
-    LEER LAS BASE DE DATOS
-
-      DIR * directorio;
-	  struct dirent * elemento;
-	  string elem;
-	  if (directorio = opendir(dir.c_str()))
-	  {
-	   while (elemento = readdir(directorio))
-	   {
-	    elem = elemento->d_name;
-	    if (elem != "." && elem != "..") cout << elem << endl;
-	   }
-	  }
-	  closedir(directorio);
-
-	*/
+void Comando_Eliminar_BD(string ruta)
+{
+     string comando; //rmdir o del
+     if (is_dir(ruta))
+     {
+      comando = "rmdir " + ruta + " /s /q";
+      system(comando.c_str());
+     }
+}
+/*
+void eliminar(string ruta)
+{
+ string comando; //rmdir o del
+ if (is_dir(ruta))
+ {
+  comando = "rmdir " + ruta + " /s /q";
+  system(comando.c_str());
+ }
+ else if (is_file(ruta))
+ {
+  comando = "del " + ruta;
+  system(comando.c_str());
+ }
+ else
+ {
+  cout << "El elemento no existe" << endl;
+ }
+}
+*/
