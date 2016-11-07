@@ -29,7 +29,7 @@ regex cLimpiar("^(-l)$");
 regex cComando("^(-com)$");
 regex cAyuda("^(-a)$");
 regex cUsuario("^(usuario|USUARIO)$");
-regex cEliminarUsuarios("^(eliminar usuarios|ELIMINAR USUARIOS)$");
+regex cEliminarUsuarios("^(eliminar usuario|ELIMINAR USUARIO)$");
 regex cMostrarUsuariosAdmin("^(mostrar usuarios administradores|MOSTRAR USUARIOS ADMINISTRADORES)$");
 regex cMostrarUsuariosComunes("^(mostrar usuarios comunes|MOSTRAR USUARIOS COMUNES)$");
 regex cMostrarBaseDatos("^(mostrar basedatos|MOSTRAR BASEDATOS)$");
@@ -81,7 +81,8 @@ void Comando_Mostrar_Usuarios_Admin();
 void Comando_Mostrar_Usuarios_Comunes();
 void Comando_Mostrar_BaseDatos();
 void Comando_Eliminar_BD(string ruta);
-void Comando_Eliminar_Usuarios();
+void Comando_BuscarEliminar_Usuarios();
+void Comando_Eliminar_Usuario(string ruta);
 bool Buscar_Bd(string dir);
 bool is_file(string file);
 
@@ -695,7 +696,7 @@ void PrincipalADMIN(TCadena nombreFichero)
         }
         else if(regex_match(consulta,cEliminarUsuarios))
         {
-            Comando_Eliminar_Usuarios();
+            Comando_BuscarEliminar_Usuarios();
         }
         else
         {
@@ -707,7 +708,7 @@ void PrincipalADMIN(TCadena nombreFichero)
 
 }
 
-void Comando_Eliminar_Usuarios()
+void Comando_BuscarEliminar_Usuarios()
 {
     cout<<"Eliminara un usuario del Rango:"<<endl;
 	cout<<"\t1.- Administrador"<<endl;
@@ -727,6 +728,7 @@ void Comando_Eliminar_Usuarios()
 		string rutadefinitiva = dir + nombreUsuario;
 		if(is_file(rutadefinitiva))
         {
+            Comando_Eliminar_Usuario(rutadefinitiva);
             cout<<" -> EL Usuario '"<< nombreUsuario <<"' ha sido eliminado correctamente. <-"<<endl;
         }
         else
@@ -742,6 +744,7 @@ void Comando_Eliminar_Usuarios()
 		string rutadefinitiva = dir + nombreUsuario;
 		if(is_file(rutadefinitiva))
         {
+            Comando_Eliminar_Usuario(rutadefinitiva);
             cout<<" -> El Usuario '"<< nombreUsuario <<"' ha sido eliminado correctamente. <-"<<endl;
         }
         else
@@ -939,23 +942,13 @@ void Comando_Eliminar_BD(string ruta)
       system(comando.c_str());
      }
 }
-/*
-void eliminar(string ruta)
+
+void Comando_Eliminar_Usuario(string ruta)
 {
- string comando; //rmdir o del
- if (is_dir(ruta))
- {
-  comando = "rmdir " + ruta + " /s /q";
-  system(comando.c_str());
- }
- else if (is_file(ruta))
- {
-  comando = "del " + ruta;
-  system(comando.c_str());
- }
- else
- {
-  cout << "El elemento no existe" << endl;
- }
+    string comando; //rmdir o del
+    if (is_file(ruta))
+    {
+    comando = "del " + ruta;
+    system(comando.c_str());
+    }
 }
-*/
