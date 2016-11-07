@@ -1,3 +1,4 @@
+
 //Librerias
 #include <cstdlib>
 #include <iostream>
@@ -7,10 +8,11 @@
 #include <string.h>
 #include "stdio.h"
 #include <string>	//Strings
-#include <direct.h> //Direcctorios
+#include <direct.h> //Directorios
+#include <dirent.h> //Directorios
 #include <cstring> //Validacion char
 #include <ctype.h> //Minusculas
-#include <regex>
+#include <regex> //Expresiones Regulares
 
 using namespace std;
 
@@ -18,19 +20,20 @@ using namespace std;
 const char FINCAD = char(0);
 const int MAXCAD = 20;
 const char SP = ' ';
-/*
-char contrasena;
-int i;
-int contador=0;
-*/
+int mensajeInicio = 0;
+
 //Expresiones regulares (simuladas)
-char crearUsuario[] = "crear usuario";
-char comandoSalir[]="salir";
-char comandoLimpiar[] = "-l";
-char comandoAyuda[] = "-a";
-char comandoComandos[] = "-com";
-char comandoCerrar[] = "cerrar";
-char comandoUsuario[] = "usuario";
+regex cCrearUsuario("^(CREAR USUARIO|crear usuario)$");
+regex cSalir("^(salir|SALIR)$");
+regex cLimpiar("^(-l)$");
+regex cComando("^(-com)$");
+regex cAyuda("^(-a)$");
+regex cUsuario("^(usuario|USUARIO)$");
+regex cMostrarUsuariosAdmin("^(mostrar usuarios administradores|MOSTRAR USUARIOS ADMINISTRADORES)$");
+regex cMostrarUsuariosComunes("^(mostrar usuarios comunes|MOSTRAR USUARIOS COMUNES)$");
+regex cMostrarBaseDatos("^(mostrar basedatos|MOSTRAR BASEDATOS)$");
+regex cCrearBaseDatos("^(crear basedatos\\s(\\w)+|CREAR BASEDATOS\\s(\\w)+)$");
+regex cUsarBaseDatos("^(usar basedatos\\s(\\w)+|USAR BASEDATOS\\s(\\w)+)$");
 
 //TIPOS
 typedef char TCadena[MAXCAD+1]; // MAXCAD caracteres + FINCAD
@@ -68,28 +71,34 @@ void verificar_existencia_de_usuarioADMIN(TCadena nombreFichero);
 void verificar_usuario_contrasenaADMIN(TCadena nombreFichero,Persona_R &password);
 void PrincipalADMIN(TCadena nombreFichero);
 
-void Crear_Usuarios();
-
+//Comandos
+void Comando_Crear_Usuarios();
+void Comando_Ayuda();
+void Comando_Comandos();
+void Comando_Mostrar_Usuarios_Admin();
+void Comando_Mostrar_Usuarios_Comunes();
+void Comando_Mostrar_BaseDatos();
+bool Buscar_Bd(string dir);
 
 //Metodo principal
 int main()
-{	
+{
 	//Color fondo: de Azul y Amarillo
 	system("color 0E");
-	
+
 	//Variables
 	char opcion;
 	bool bandera = false;
-	
+
 	do
 	{
 		//Limpiar pantalla
 		system("cls");
 		//Limpiar variables
 		cin.clear();
-		
-		gotoxy(72,1);cout<<"BASE DE DATOS";
-		gotoxy(70,2);cout<<"----------------";
+
+		gotoxy(82,1);cout<<"BASE DE DATOS";
+		gotoxy(80,2);cout<<"----------------";
 		gotoxy(22,2);cout<<"              NMMMMMMMMMM";
 		gotoxy(22,3);cout<<"            MMMMMMMMMMMMMMM";
 		gotoxy(22,4);cout<<"          MMMMM:........MMMMM";
@@ -105,11 +114,11 @@ int main()
 		gotoxy(22,14);cout<<"          MMMMN.........MMMMM";
 		gotoxy(22,15);cout<<"           MMMMMMMMMMMMMMMMM";
 		gotoxy(22,16);cout<<"             MMMMMMMMMMMMM";
-		
+
 		gotoxy(10,19);cout<<"1.- Iniciar Sesion como cuenta de ADMIN";
 		gotoxy(10,20);cout<<"2.- Iniciar Sesion como cuenta de USUARIO";
 		gotoxy(10,21);cout<<"3.- Salir";
-		
+
 		//Crear la carpeta contenedora
 		string directorio = "c:/BaseDeDatos/";
 		if (mkdir(directorio.c_str()) == 0)
@@ -117,29 +126,29 @@ int main()
 			gotoxy(8,2);cout << "CARPETA";
 			gotoxy(8,3);cout << "CONTENEDORA";
 			gotoxy(8,4);cout << "CREADA";
-			
+
 			//Creacion de las carpetas
 			mkdir("c:/BaseDeDatos/Usuarios");
 			mkdir("c:/BaseDeDatos/Usuarios/Admin");
 			mkdir("c:/BaseDeDatos/Usuarios/Comunes");
 			mkdir("c:/BaseDeDatos/BD");
-			
+
 			//Creacion de el usuario angel
 			ofstream usuarioRoot;
 			usuarioRoot.open ("c:/BaseDeDatos/Usuarios/Admin/pasillas");
 			usuarioRoot << "pasillas";
 			usuarioRoot.close();
-			
+
 			//Creacion de el usuario ana
 			ofstream usuarioChipres;
 			usuarioChipres.open ("c:/BaseDeDatos/Usuarios/Admin/chipres");
 			usuarioChipres << "chipres";
 			usuarioChipres.close();
-			 
+
 		}
-		
+
 		gotoxy(10,22);cout<<"Opcion: "; cin>>opcion;
-	
+
 		switch(opcion)
 		{
 			case '1':
@@ -171,14 +180,14 @@ int main()
 
 //Metodo para realizar diseño en el consola
 void gotoxy(int x,int y)
-{  
-      HANDLE hcon;  
-      hcon = GetStdHandle(STD_OUTPUT_HANDLE);  
-      COORD dwPos;  
-      dwPos.X = x;  
-      dwPos.Y= y;  
-      SetConsoleCursorPosition(hcon,dwPos);  
-}  
+{
+      HANDLE hcon;
+      hcon = GetStdHandle(STD_OUTPUT_HANDLE);
+      COORD dwPos;
+      dwPos.X = x;
+      dwPos.Y= y;
+      SetConsoleCursorPosition(hcon,dwPos);
+}
 
 //Metodo que permite dar pausa al programa
 void pausaSinMensaje()
@@ -205,12 +214,12 @@ void iniciarSesionAdmin()
 	//Variables
     TCadena nombre_usuario_registrado;
     Persona_R password;;
-    
+
 	//Limpiar pantalla
 	system("cls");
 	//Limpiar variables
 	cin.clear();
-	
+
 	gotoxy(72,2);cout<<"BASE DE DATOS";
 	gotoxy(70,3);cout<<"----------------";
 	gotoxy(33,3);cout<<"+-----------------+";
@@ -224,7 +233,7 @@ void iniciarSesionAdmin()
 	gotoxy(20,11);cout<<"|   Contraseña  +                          |";
 	gotoxy(20,12);cout<<"+---------------+--------------------------+";
 	gotoxy(40,9);cin>> nombre_usuario_registrado;
-	
+
 	//Verificar Usuario y Contraseña
 	verificar_usuario_contrasenaADMIN(nombre_usuario_registrado,password);
 }
@@ -236,12 +245,12 @@ void iniciarSesionUsuario()
     TCadena nombre_usuario_registrado;
     Persona_R p;;
     Persona_R password;;
-    
+
 	//Limpiar pantalla
 	system("cls");
 	//Limpiar variables
 	cin.clear();
-	
+
 	gotoxy(72,2);cout<<"BASE DE DATOS";
 	gotoxy(70,3);cout<<"----------------";
 	gotoxy(33,3);cout<<"+-----------------+";
@@ -263,8 +272,8 @@ void iniciarSesionUsuario()
 // IMPLEMENTACIÃON DE PROCEDIMIENTOS Y FUNCIONES
 void finalizar_programa()
 {
-  borrar_pantalla();     
-  printf("El Programa CERRARA en Cualquier Momento"); 
+  borrar_pantalla();
+  printf("El Programa CERRARA en Cualquier Momento");
   Sleep(3000);
   exit(0);
 }
@@ -275,10 +284,10 @@ void borrar_pantalla()
 
 void Ingresar_PASS(Persona_R &p)
 {
-  cout << "Escriba su password del Usuario: ";
+  cout << "Escriba su password del Usuario: " ;
   cin >> p.PASS;
-  cout<<"\nTE HAZ REGISTRADO CORRECTAMENTE"<<endl; 
-  Sleep(2500); 
+  cout<<" -> SE HA REGISTRADO CORRECTAMENTE <-"<<endl;
+  Sleep(2500);
 }
 void confirmar_PASS(Persona_R &password)
 {
@@ -290,8 +299,8 @@ void confirmar_PASS(Persona_R &password)
 void insertarPersonaTXT(TCadena nombreFichero, Persona_R p)
 {
 	char rutaUsuarioComun[100] = "c:/BaseDeDatos/Usuarios/Comunes/";
-	strcat(rutaUsuarioComun,nombreFichero); 
-	
+	strcat(rutaUsuarioComun,nombreFichero);
+
   ofstream out;
   out.open(rutaUsuarioComun,ios::app);
   // Abro el fichero para aÃ±adir
@@ -299,10 +308,10 @@ void insertarPersonaTXT(TCadena nombreFichero, Persona_R p)
   {
     // El fichero no existe ... lo creo
     out.open(rutaUsuarioComun);
-  }	
+  }
   EscribePersonaFicheroTXT(out,p);
   out.close();
-  
+
 }
 
 void EscribePersonaFicheroTXT(ofstream &fichero, Persona_R p)
@@ -313,33 +322,34 @@ void EscribePersonaFicheroTXT(ofstream &fichero, Persona_R p)
 void verificar_existencia_de_usuario(TCadena nombreFichero)
 {
 	char rutaUsuarioComun[100] = "c:/BaseDeDatos/Usuarios/Comunes/";
-	strcat(rutaUsuarioComun,nombreFichero); 
-  ifstream archivo(rutaUsuarioComun); 
-  if (!archivo)
-  {
-    cout<<"Nombre de Usuario DISPONIBLE\n"<<endl;Sleep(2500);
-  }
-  else 
-  {
-    cout<<"Este Nombre de Usuario ya Existe. INTENTELO DE NUEVO"<<endl; 
-	Sleep(2500);
-	PrincipalComun(nombreFichero);     
-  }   
+	strcat(rutaUsuarioComun,nombreFichero);
+  ifstream archivo(rutaUsuarioComun);
+	if (!archivo)
+	{
+    	cout<<" -> Nombre de Usuario DISPONIBLE <- "<<endl;
+		Sleep(2500);
+	}
+	else
+	{
+    	cout<<" -> Este Nombre de Usuario ya Existe. INTENTELO DE NUEVO <-"<<endl;
+		Sleep(2500);
+		PrincipalComun(nombreFichero);
+  	}
 }
 
 void verificar_usuario_contrasena(TCadena nombreFichero,Persona_R &password)
 {
 	char rutaUsuarioComun[100] = "c:/BaseDeDatos/Usuarios/Comunes/";
 	strcat(rutaUsuarioComun,nombreFichero);
-	
-	ifstream archivo(rutaUsuarioComun); 
+
+	ifstream archivo(rutaUsuarioComun);
   	if (!archivo)
 	{
 		string error;
 		gotoxy(40,11);cin >> error;
-		
+
 		//Error al no encontrar el archivo
-		gotoxy(20,20);cout<<"- NOMBRE Y/O CONTRASEÑA SON ERRONEOS -"; 
+		gotoxy(20,20);cout<<"- NOMBRE Y/O CONTRASEÑA SON ERRONEOS -";
 	    Sleep(3000);
 	}
 	else
@@ -347,24 +357,25 @@ void verificar_usuario_contrasena(TCadena nombreFichero,Persona_R &password)
 		string cadena;
 		string contrase;
 		gotoxy(40,11);cin >> password.PASS;
-		ifstream fichero(rutaUsuarioComun,ios::in);	
-		     
+		ifstream fichero(rutaUsuarioComun,ios::in);
+
 		while(!fichero.eof())
-		{                 
-			fichero >> cadena;   
+		{
+			fichero >> cadena;
 		}
-		  
+
 		if(cadena!=password.PASS)
 		{
-	    	gotoxy(20,20);cout<<"- NOMBRE Y/O CONTRASEÑA SON ERRONEOS -"; 
+	    	gotoxy(20,20);cout<<"- NOMBRE Y/O CONTRASEÑA SON ERRONEOS -";
 	    	Sleep(3000);
 		    fichero.close();
 		}
-		
+
 		if(cadena==password.PASS)
 		{
 	    	gotoxy(38,18);cout<<"Espere...";
 	    	Sleep(3000);
+	    	borrar_pantalla();
 	    	PrincipalComun(nombreFichero);
 		}
 	}
@@ -376,8 +387,8 @@ void verificar_usuario_contrasena(TCadena nombreFichero,Persona_R &password)
 void insertarPersonaTXTADMIN(TCadena nombreFichero, Persona_R p)
 {
 	char rutaUsuarioAdmin[100] = "c:/BaseDeDatos/Usuarios/Admin/";
-	strcat(rutaUsuarioAdmin,nombreFichero); 
-	
+	strcat(rutaUsuarioAdmin,nombreFichero);
+
 	ofstream out;
 	out.open(rutaUsuarioAdmin,ios::app);
 	// Abre el fichero para añadir
@@ -385,7 +396,7 @@ void insertarPersonaTXTADMIN(TCadena nombreFichero, Persona_R p)
 	{
     	// El fichero no existe ... lo creo
     	out.open(rutaUsuarioAdmin);
-	}	
+	}
 	EscribePersonaFicheroTXTADMIN(out,p);
 	out.close();
 }
@@ -399,35 +410,35 @@ void verificar_existencia_de_usuarioADMIN(TCadena nombreFichero)
 {
 	char rutaUsuarioAdmin[100] = "c:/BaseDeDatos/Usuarios/Admin/";
 	strcat(rutaUsuarioAdmin,nombreFichero);
-	 
-	ifstream archivo(rutaUsuarioAdmin); 
+
+	ifstream archivo(rutaUsuarioAdmin);
 	if (!archivo)
 	{
-    	cout<<"Nombre de Usuario DISPONIBLE"<<endl;
+    	cout<<" -> Nombre de Usuario DISPONIBLE <- "<<endl;
 		Sleep(2500);
 	}
-	else 
+	else
 	{
-    	cout<<"Este Nombre de Usuario ya Existe. INTENTELO DE NUEVO"<<endl; 
+    	cout<<" -> Este Nombre de Usuario ya Existe. INTENTELO DE NUEVO <-"<<endl;
 		Sleep(2500);
 		PrincipalADMIN(nombreFichero);
-  	}   
+  	}
 }
 
 void verificar_usuario_contrasenaADMIN(TCadena nombreFichero,Persona_R &password)
 {
 	char rutaUsuarioAdmin[100] = "c:/BaseDeDatos/Usuarios/Admin/";
-	strcat(rutaUsuarioAdmin,nombreFichero); 
-	
+	strcat(rutaUsuarioAdmin,nombreFichero);
+
 	//Buscar el archivo
-	ifstream archivo(rutaUsuarioAdmin); 
+	ifstream archivo(rutaUsuarioAdmin);
 	if (!archivo)
 	{
 		string error;
 		gotoxy(40,11);cin >> error;
-		
+
 		//Error al no encontrar el archivo
-		gotoxy(20,20);cout<<"- NOMBRE Y/O CONTRASEÑA SON ERRONEOS -"; 
+		gotoxy(20,20);cout<<"- NOMBRE Y/O CONTRASEÑA SON ERRONEOS -";
 	    Sleep(3000);
 	}
 	else
@@ -438,23 +449,24 @@ void verificar_usuario_contrasenaADMIN(TCadena nombreFichero,Persona_R &password
 
 		gotoxy(40,11);cin >> password.PASS;
 		ifstream fichero(rutaUsuarioAdmin,ios::in);
-	     
+
 		while(!fichero.eof())
-		{                 
+		{
 	    	fichero >> cadena;
 		}
-	  
+
 	  	if(cadena!=password.PASS)
 	  	{
-	    	gotoxy(20,20);cout<<"- NOMBRE Y/O CONTRASEÑA SON ERRONEOS -"; 
+	    	gotoxy(20,20);cout<<"- NOMBRE Y/O CONTRASEÑA SON ERRONEOS -";
 	    	Sleep(3000);
 	    	fichero.close();
 	  	}
-	
+
 	  	if(cadena==password.PASS)
 	  	{
-	    	gotoxy(38,18);cout<<"Espere..."; 
+	    	gotoxy(38,18);cout<<"Espere...";
 	    	Sleep(3000);
+	    	borrar_pantalla();
 	    	PrincipalADMIN(nombreFichero);
 	  	}
 	}
@@ -463,10 +475,10 @@ void verificar_usuario_contrasenaADMIN(TCadena nombreFichero,Persona_R &password
 void PrincipalComun(TCadena nombreFichero)
 {
 	system("cls");
-	
+
 	bool salida = false;
 	int mensajeInicio = 0;
-	
+
 	do
 	{
 		string consulta = "";
@@ -480,35 +492,35 @@ void PrincipalComun(TCadena nombreFichero)
 			gotoxy(20,4);cout<<"| ___ \\ |/ _ \\ '_ \\ \\ / / _ \\ '_ \\| |/ _` |/ _ \\ ";
 			gotoxy(20,5);cout<<"| |_/ / |  __/ | | \\ V /  __/ | | | | (_| | (_) |";
 			gotoxy(20,6);cout<<"\\____/|_|\\___|_| |_|\\_/ \\___|_| |_|_|\\__,_|\\___/ "<<endl;
-		
+
 			cout <<""<<endl;
 			cout <<""<<endl;
 			cout<<"Bienvenido a la Base de Datos."<<endl;
 			cout<<"Te haz conectado con la cuenta de: ";puts(nombreFichero);
 			cout<<"Version de la Base de Datos: 1.0.1"<<endl;
 			cout<<"Creada por Ana Maria Chipres Castellanos y Miguel Angel Pasillas Luis. <c> 2016"<<endl;
-			
+
 			mensajeInicio = 1;
-		
+
 		cout<<""<<endl;
 		cout<<"Escriba -a para obtener ayuda. Escribe -l para limpiar pantalla. \nEscribe -com para mostrar todos los comandos."<<endl;
 		}
-		
+
 		cout<<""<<endl;
 		cout<<"SQL> "; cin>>consulta;
-		
+
 		if(consulta=="-a")
 		{
 			cout<<"                  "<<endl;
-			cout<<"                    ___                  _"<<endl;      
-			cout<<"                   / _ \\                | | "<<endl;     
+			cout<<"                    ___                  _"<<endl;
+			cout<<"                   / _ \\                | | "<<endl;
 			cout<<"                  / /_\\ \\_   _ _   _  __| | __ _ "<<endl;
 			cout<<"                  |  _  | | | | | | |/ _` |/ _` |"<<endl;
-			cout<<"                  | | | | |_| | |_| | (_| | (_| |"<<endl; 
-			cout<<"                  \\_| |_/\\__, |\\__,_|\\__,_|\\__,_|"<<endl; 
-			cout<<"                          __/ | "<<endl;                
-			cout<<"                         |___/  "<<endl;   
-			cout<<"                  --MENSAJES DE AYUDA--"<<endl; 
+			cout<<"                  | | | | |_| | |_| | (_| | (_| |"<<endl;
+			cout<<"                  \\_| |_/\\__, |\\__,_|\\__,_|\\__,_|"<<endl;
+			cout<<"                          __/ | "<<endl;
+			cout<<"                         |___/  "<<endl;
+			cout<<"                  --MENSAJES DE AYUDA--"<<endl;
 		}
 		else if(consulta=="-l")
 		{
@@ -516,12 +528,12 @@ void PrincipalComun(TCadena nombreFichero)
 		}
 		else if(consulta=="-com")
 		{
-			cout<<"                   _____                                 _"<<endl;           
-			cout<<"                  /  __ \\                               | | "<<endl;          
-			cout<<"                  | /  \\/ ___  _ __ ___   __ _ _ __   __| | ___  ___ "<<endl; 
-			cout<<"                  | |    / _ \\| '_ ` _ \\ / _` | '_ \\ / _` |/ _ \\/ __|"<<endl; 
-			cout<<"                  | \\__/\\ (_) | | | | | | (_| | | | | (_| | (_) \\__ \\"<<endl; 
-			cout<<"                   \\____/\\___/|_| |_| |_|\\__,_|_| |_|\\__,_|\\___/|___/"<<endl;           
+			cout<<"                   _____                                 _"<<endl;
+			cout<<"                  /  __ \\                               | | "<<endl;
+			cout<<"                  | /  \\/ ___  _ __ ___   __ _ _ __   __| | ___  ___ "<<endl;
+			cout<<"                  | |    / _ \\| '_ ` _ \\ / _` | '_ \\ / _` |/ _ \\/ __|"<<endl;
+			cout<<"                  | \\__/\\ (_) | | | | | | (_| | | | | (_| | (_) \\__ \\"<<endl;
+			cout<<"                   \\____/\\___/|_| |_| |_|\\__,_|_| |_|\\__,_|\\___/|___/"<<endl;
 			cout<<"--TODOS LOS COMANDOS--"<<endl;
 		}
 		else if(consulta=="salir")
@@ -529,22 +541,20 @@ void PrincipalComun(TCadena nombreFichero)
 			cout<<"Presione cualquier tecla para salir...";
 			salida = true;
 		}
-		
+
 	}while(salida!= true);
 	pausaSinMensaje();
-	
+
 }
 
 void PrincipalADMIN(TCadena nombreFichero)
 {
-	system("cls");
-	int mensajeInicio = 0;
+    string nombreBaseDatos = "";
 	bool salida = false;
-	
-	
-	do
-	{
-		char consulta[100];
+
+	while(salida!= true)
+    {
+		string consulta;
 
 		if (mensajeInicio == 0)
 		{
@@ -555,101 +565,131 @@ void PrincipalADMIN(TCadena nombreFichero)
 			gotoxy(20,4);cout<<"| ___ \\ |/ _ \\ '_ \\ \\ / / _ \\ '_ \\| |/ _` |/ _ \\ ";
 			gotoxy(20,5);cout<<"| |_/ / |  __/ | | \\ V /  __/ | | | | (_| | (_) |";
 			gotoxy(20,6);cout<<"\\____/|_|\\___|_| |_|\\_/ \\___|_| |_|_|\\__,_|\\___/ "<<endl;
-		
+
 			cout <<""<<endl;
 			cout <<""<<endl;
 			cout<<"Bienvenido a la Base de Datos."<<endl;
-			cout<<"Te haz conectado con la cuenta de: ";puts(nombreFichero);
+			cout<<"Te haz conectado con la cuenta de: "; puts(nombreFichero);
 			cout<<"Version de la Base de Datos: 1.0.1"<<endl;
 			cout<<"Creada por Ana Maria Chipres Castellanos y Miguel Angel Pasillas Luis. <c> 2016"<<endl;
-			
-			mensajeInicio = 1;
-		
-			cout<<""<<endl;
-			cout<<"Escriba -a para obtener ayuda. Escribe -l para limpiar pantalla. \nEscribe -com para mostrar todos los comandos."<<endl;
+
+            cout<<""<<endl;
+            cout<<"Escriba -a para obtener ayuda. Escribe -l para limpiar pantalla. \nEscribe -com para mostrar todos los comandos."<<endl;
+
+            mensajeInicio = 1;
 		}
-		
+
 		cout<<""<<endl;
-		cout<<"SQL> "; gets(consulta);
-		
-		for(int i = 0; consulta[i]; i++)
-      	consulta[i] = tolower(consulta[i]); //<--convierte a minusculas 
-		
-		if(!strcmp (consulta,comandoAyuda))
+		cout<<"SQL> ";
+		getline(cin, consulta, '\n');
+
+        //Mostrar ayuda
+		if(regex_match(consulta,cAyuda))
 		{
-			cout<<"                  "<<endl;
-			cout<<"                    ___                  _"<<endl;      
-			cout<<"                   / _ \\                | | "<<endl;     
-			cout<<"                  / /_\\ \\_   _ _   _  __| | __ _ "<<endl;
-			cout<<"                  |  _  | | | | | | |/ _` |/ _` |"<<endl;
-			cout<<"                  | | | | |_| | |_| | (_| | (_| |"<<endl; 
-			cout<<"                  \\_| |_/\\__, |\\__,_|\\__,_|\\__,_|"<<endl; 
-			cout<<"                          __/ | "<<endl;                
-			cout<<"                         |___/  "<<endl;   
-			cout<<"                  --MENSAJES DE AYUDA--"<<endl; 
-		}//Para limpiar pantalla
-		else if(!strcmp (consulta,comandoLimpiar))
+            Comando_Ayuda();
+		}//Limpiar pantalla
+		else if(regex_match(consulta,cLimpiar))
 		{
 			system("cls");
-		}//Comando para ver todos los comandos
-		else if(!strcmp (consulta,comandoComandos))
+		}//Mostrar todos los comandos
+		else if(regex_match(consulta,cComando))
 		{
-			cout<<"                   _____                                 _"<<endl;           
-			cout<<"                  /  __ \\                               | | "<<endl;          
-			cout<<"                  | /  \\/ ___  _ __ ___   __ _ _ __   __| | ___  ___ "<<endl; 
-			cout<<"                  | |    / _ \\| '_ ` _ \\ / _` | '_ \\ / _` |/ _ \\/ __|"<<endl; 
-			cout<<"                  | \\__/\\ (_) | | | | | | (_| | | | | (_| | (_) \\__ \\"<<endl; 
-			cout<<"                   \\____/\\___/|_| |_| |_|\\__,_|_| |_|\\__,_|\\___/|___/"<<endl;
-			cout<<"\nMOSTRAR BASEDATOS"<<endl;
-			cout<<"\tPermite mostrar todas las base de datos existentes."<<endl;
-			cout<<"\nCREAR USUARIO"<<endl;
-			cout<<"\tPermite Crear Usuarios para acceder al sistema."<<endl;
-			cout<<"\n-------------"<<endl;
-			cout<<"\t-----------------------------------------------"<<endl;
-			cout<<"\n-------------"<<endl;
-			cout<<"\n\t-----------------------------------------------"<<endl;
-			cout<<"\n-------------"<<endl;
-			cout<<"\n\t-----------------------------------------------"<<endl;
-		}//Comando salir
-		else if(!strcmp (consulta,comandoSalir))
+            Comando_Comandos();
+		}//Salir
+		else if(regex_match(consulta,cSalir))
 		{
-			cout<<"En unos momentos se cierra...";
+			cout<<"En unos momentos se cierra el programa...";
 			Sleep(3000);
 			exit(0);
 			salida = true;
-		}//Creacion de Usuarios
-		else if(!strcmp (consulta,crearUsuario))
+		}//Creacion de Usuarios -- ADMIN
+		else if(regex_match(consulta,cCrearUsuario))
 		{
-			Crear_Usuarios();
-		}//Mostrar en que usuario estas entrando
-		else if(!strcmp (consulta,comandoUsuario))
-		{
-			cout<<"Te haz conectado con la cuenta de: ";puts(nombreFichero);
-		}//Cerrar sesion
-		else if(!strcmp (consulta,comandoCerrar))
-		{
-			cout<<"Saliendo de su cuenta...";
-			Sleep(3000);
-			main();	
-		}
-	}while(salida!= true);
+		    Comando_Crear_Usuarios();
+		}//Mostrar el usuario con el que se esta conectado
+		else if(regex_match(consulta,cUsuario))
+        {
+            cout<<"Te haz conectado con la cuenta de: "; puts(nombreFichero);
+        }//Mostrar todos los usuarios administradores -- ADMIN
+        else if(regex_match(consulta, cMostrarUsuariosAdmin))
+        {
+            Comando_Mostrar_Usuarios_Admin();
+        }
+        else if(regex_match(consulta, cMostrarUsuariosComunes))
+        {
+            Comando_Mostrar_Usuarios_Comunes();
+        }
+        else if(regex_match(consulta, cMostrarBaseDatos))
+        {
+            Comando_Mostrar_BaseDatos();
+        }
+        else if (regex_match(consulta, cUsarBaseDatos))
+        {
+            string rutabasedatos = "c:/BaseDeDatos/BD/";
+            string tempNombre;
+            istringstream isstream(consulta);
+            while(!isstream.eof()){
+                string tempStr;
+                isstream >> tempStr;
+                tempNombre = tempStr;
+            }
+            string rutaDefinitiva = rutabasedatos + tempNombre;
+            if (Buscar_Bd(rutaDefinitiva))
+            {
+                nombreBaseDatos = tempNombre;
+                cout<<" -> Usando la Base de Datos '"<< nombreBaseDatos <<"' <-"<<endl;
+            }
+            else
+            {
+                cout<<"-> NO se encontro la base de datos '"<< tempNombre <<"' <-"<<endl;
+            }
+        }
+        else if(regex_match(consulta, cCrearBaseDatos))
+        {
+            string rutabasedatos = "c:/BaseDeDatos/BD/";
+            string tempNombre;
+            istringstream isstream(consulta);
+            while(!isstream.eof()){
+                string tempStr;
+                isstream >> tempStr;
+                tempNombre = tempStr;
+            }
+            string rutaDefinitiva = rutabasedatos + tempNombre;
+
+            if (Buscar_Bd(rutaDefinitiva))
+            {
+                cout<<" -> Ya existe una base de datos con el nombre: '"<< nombreBaseDatos <<"'. Intenta con otro nombre. <-"<<endl;
+            }
+            else
+            {
+                mkdir(rutaDefinitiva.c_str());
+                cout<<"-> Creada satisfactoriamente la base de datos '"<< tempNombre <<"' <-"<<endl;
+            }
+        }
+        else
+        {
+            cout <<"Error: Error en su comando."<<endl;
+        }
+
+	}
 	pausaSinMensaje();
-	
+
 }
 
-void Crear_Usuarios()
+void Comando_Crear_Usuarios()
 {
-	cout<<"\nSeleccione el tipo de cuenta que se creara."<<endl;
+	cout<<"Creara un Usuario con Privilegios de:"<<endl;
 	cout<<"\t1.- Administrador"<<endl;
-	cout<<"\t2.- Comun"<<endl;
-	
+	cout<<"\t2.- Comunes"<<endl;
+	cout<<""<<endl;
+
 	Persona_R p;;
-	int tipoUsuario = 0;
+	char tipoUsuario = 0;
 	TCadena nombreUsuario;
-	
+
 	cout<<"Opcion: "; cin >> tipoUsuario;
-	
-	if(tipoUsuario==1)
+
+	if(tipoUsuario=='1')
 	{
 		cout<<"Ingrese el nombre de Usuario: "; cin >> nombreUsuario;
 		//Administrador
@@ -657,7 +697,7 @@ void Crear_Usuarios()
 		Ingresar_PASS(p);
 		insertarPersonaTXTADMIN(nombreUsuario,p);
 	}
-	else if(tipoUsuario==2)
+	else if(tipoUsuario=='2')
 	{
 		cout<<"Ingrese el nombre de Usuario: "; cin >> nombreUsuario;
 		//Comun
@@ -665,14 +705,128 @@ void Crear_Usuarios()
 		Ingresar_PASS(p);
 		insertarPersonaTXT(nombreUsuario,p);
 	}
+	else
+    {
+        cout<<" -> Ingrese una Opcion Correcta. <-"<<endl;
+    }
 }
 
+void Comando_Ayuda()
+{
+    cout<<"                  "<<endl;
+    cout<<"                    ___                  _"<<endl;
+    cout<<"                   / _ \\                | | "<<endl;
+    cout<<"                  / /_\\ \\_   _ _   _  __| | __ _ "<<endl;
+    cout<<"                  |  _  | | | | | | |/ _` |/ _` |"<<endl;
+    cout<<"                  | | | | |_| | |_| | (_| | (_| |"<<endl;
+    cout<<"                  \\_| |_/\\__, |\\__,_|\\__,_|\\__,_|"<<endl;
+    cout<<"                          __/ | "<<endl;
+    cout<<"                         |___/  "<<endl;
+    cout<<"                  --MENSAJES DE AYUDA--"<<endl;
+}
+
+void Comando_Comandos()
+{
+    cout<<"                   _____                                 _"<<endl;
+    cout<<"                  /  __ \\                               | | "<<endl;
+    cout<<"                  | /  \\/ ___  _ __ ___   __ _ _ __   __| | ___  ___ "<<endl;
+    cout<<"                  | |    / _ \\| '_ ` _ \\ / _` | '_ \\ / _` |/ _ \\/ __|"<<endl;
+    cout<<"                  | \\__/\\ (_) | | | | | | (_| | | | | (_| | (_) \\__ \\"<<endl;
+    cout<<"                   \\____/\\___/|_| |_| |_|\\__,_|_| |_|\\__,_|\\___/|___/"<<endl;
+    cout<<"--TODOS LOS COMANDOS--"<<endl;
+    cout<<"CREAR USUARIO"<<endl;
+}
+
+void Comando_Mostrar_Usuarios_Admin()
+{
+    cout<<"+------------------+"<<endl;
+    cout<<"|  ADMINISTRADORES |"<<endl;
+    cout<<"+------------------+"<<endl;
+    string dir = "c:/BaseDeDatos/Usuarios/Admin";
+    DIR * directorio;
+    struct dirent * elemento;
+    string elem;
+    if (directorio = opendir(dir.c_str()))
+    {
+        while (elemento = readdir(directorio))
+        {
+            elem = elemento->d_name;
+            if (elem != "." && elem != "..")
+            {
+                cout << "--> " <<elem<< endl;
+                //cout<<"+------------------+"<<endl;
+            }
+        }
+    }
+    closedir(directorio);
+}
+
+void Comando_Mostrar_Usuarios_Comunes()
+{
+    cout<<"+------------------+"<<endl;
+    cout<<"|     COMUNES      |"<<endl;
+    cout<<"+------------------+"<<endl;
+    string dir = "c:/BaseDeDatos/Usuarios/Comunes";
+    DIR * directorio;
+    struct dirent * elemento;
+    string elem;
+    if (directorio = opendir(dir.c_str()))
+    {
+        while (elemento = readdir(directorio))
+        {
+            elem = elemento->d_name;
+            if (elem != "." && elem != "..")
+            {
+                cout << "--> " <<elem<< endl;
+            }
+        }
+    }
+    closedir(directorio);
+}
+
+void Comando_Mostrar_BaseDatos()
+{
+    cout<<"+------------------+"<<endl;
+    cout<<"|  BASES DE DATOS  |"<<endl;
+    cout<<"+------------------+"<<endl;
+    string dir = "c:/BaseDeDatos/BD";
+    DIR * directorio;
+    struct dirent * elemento;
+    string elem;
+    if (directorio = opendir(dir.c_str()))
+    {
+        while (elemento = readdir(directorio))
+        {
+            elem = elemento->d_name;
+            if (elem != "." && elem != "..")
+            {
+                cout << "--> " <<elem<< endl;
+            }
+        }
+    }
+    closedir(directorio);
+}
+
+//Saber si una carpeta existe una carpeta o no existe
+bool Buscar_Bd(string dir)
+{
+    DIR * directorio;
+    if (directorio = opendir(dir.c_str()))
+    {
+        closedir(directorio);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
 	/*
 	//CREAR UNA BASE DE DATOS
-	
+
 	string nombre;
-	string ruta = "c:/BaseDeDatos/";
+	string ruta = "c:/BaseDeDatos/BD";
 	gotoxy(40,18);cout<<"Ingrese el Nombre de la Base de Datos: "<<endl;
 	cin>> nombre;
 	string ruta_absoluta = ruta + nombre;
@@ -680,22 +834,22 @@ void Crear_Usuarios()
     else cout << "La base de datos ya existe." << endl;
     pausaSinMensaje();
     */
-    
-    
+
+
     /*
     LEER LAS BASE DE DATOS
-    
+
       DIR * directorio;
 	  struct dirent * elemento;
 	  string elem;
 	  if (directorio = opendir(dir.c_str()))
-	  { 
+	  {
 	   while (elemento = readdir(directorio))
 	   {
 	    elem = elemento->d_name;
-	    if (elem != "." && elem != "..") cout << elem << endl;   
-	   }            
+	    if (elem != "." && elem != "..") cout << elem << endl;
+	   }
 	  }
 	  closedir(directorio);
-    
+
 	*/
