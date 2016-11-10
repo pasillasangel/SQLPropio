@@ -362,7 +362,9 @@ void verificar_usuario_contrasena(TCadena nombreFichero,Persona_R &password)
   	{
 		string cadena;
 		string contrase;
-		gotoxy(40,11);cin >> password.PASS;
+
+		gotoxy(40,11);cin>> password.PASS;
+        //nuevaCadena = (string)password.PASS;
 		ifstream fichero(rutaUsuarioComun,ios::in);
 
 		while(!fichero.eof())
@@ -372,7 +374,7 @@ void verificar_usuario_contrasena(TCadena nombreFichero,Persona_R &password)
 
 		if(cadena!=password.PASS)
 		{
-	    	gotoxy(20,20);cout<<"- NOMBRE Y/O CONTRASEÑA SON ERRONEOS -";
+	    	gotoxy(20,20);cout<<"- NOMBRE Y/O CONTRASEÑA SON ERRONEOS - ";
 	    	Sleep(3000);
 		    fichero.close();
 		}
@@ -698,6 +700,10 @@ void PrincipalADMIN(TCadena nombreFichero)
         {
             Comando_BuscarEliminar_Usuarios();
         }
+        else if(consulta=="")
+        {
+
+        }
         else
         {
             cout <<"Error: Error en su comando."<<endl;
@@ -816,8 +822,9 @@ void Comando_Comandos()
     cout<<"                  | |    / _ \\| '_ ` _ \\ / _` | '_ \\ / _` |/ _ \\/ __|"<<endl;
     cout<<"                  | \\__/\\ (_) | | | | | | (_| | | | | (_| | (_) \\__ \\"<<endl;
     cout<<"                   \\____/\\___/|_| |_| |_|\\__,_|_| |_|\\__,_|\\___/|___/"<<endl;
-    cout<<"--TODOS LOS COMANDOS--"<<endl;
+    cout<<""<<endl;
     cout<<"CREAR USUARIO"<<endl;
+    cout<<"\tPermite crear un usuario del rango administrador o comun."<<endl;
 }
 
 void Comando_Mostrar_Usuarios_Admin()
