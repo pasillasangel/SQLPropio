@@ -562,7 +562,7 @@ void PrincipalADMIN(TCadena nombreFichero)
 
 	while(salida!= true)
     {
-		string consulta;
+		string consulta = "";
 
 		if (mensajeInicio == 0)
 		{
@@ -587,9 +587,10 @@ void PrincipalADMIN(TCadena nombreFichero)
             mensajeInicio = 1;
 		}
 
-		cout<<""<<endl;
-		cout<<"SQL> ";
-		getline(cin, consulta, '\n');
+        cout<<""<<endl;
+        cout<<"SQL> ";
+        getline(cin, consulta, '\n');
+
 
         //Mostrar ayuda
 		if(regex_match(consulta,cAyuda))
