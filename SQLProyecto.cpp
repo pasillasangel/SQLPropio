@@ -22,7 +22,7 @@ const int MAXCAD = 20;
 const char SP = ' ';
 int mensajeInicio = 0;
 
-//Expresiones regulares (simuladas)
+//Expresiones regulares
 regex cCrearUsuario("^(CREAR USUARIO|crear usuario)$");
 regex cEliminarUsuarios("^(eliminar usuario|ELIMINAR USUARIO)$");
 regex cMostrarUsuariosAdmin("^(mostrar usuarios administradores|MOSTRAR USUARIOS ADMINISTRADORES)$");
@@ -36,7 +36,7 @@ regex cComando("^(-com)$");
 regex cAyuda("^(-a)$");
 
 regex cCrearBaseDatos("^(crear basedatos\\s(\\w)+|CREAR BASEDATOS\\s(\\w)+)$");
-regex cUsarBaseDatos("^(usar basedatos\\s(\\w)+|USAR BASEDATOS\\s(\\w)+)$");
+regex cUsarBaseDatos("^(usar\\s(\\w)+|USAR\\s(\\w)+)$");
 regex cMostrarBaseDatos("^(mostrar basedatos|MOSTRAR BASEDATOS)$");
 regex cEliminarBaseDatos("^(eliminar basedatos\\s(\\w)+|ELIMINAR BASEDATOS\\s(\\w)+)$");
 regex cRetirarBaseDatos("^(retirar basedatos|RETIRAR BASEDATOS)$");
@@ -564,6 +564,8 @@ void PrincipalComun(TCadena nombreFichero)
 void PrincipalADMIN(TCadena nombreFichero)
 {
     string nombreBaseDatos = "";
+    string rutabasedatos = "c:/BaseDeDatos/BD/";
+    string tempNombre = "";
 	bool salida = false;
 	char desicion;
 
@@ -654,8 +656,6 @@ void PrincipalADMIN(TCadena nombreFichero)
         }
         else if (regex_match(consulta, cUsarBaseDatos))
         {
-            string rutabasedatos = "c:/BaseDeDatos/BD/";
-            string tempNombre;
             istringstream isstream(consulta);
             while(!isstream.eof()){
                 string tempStr;
@@ -675,8 +675,6 @@ void PrincipalADMIN(TCadena nombreFichero)
         }
         else if(regex_match(consulta, cCrearBaseDatos))
         {
-            string rutabasedatos = "c:/BaseDeDatos/BD/";
-            string tempNombre;
             istringstream isstream(consulta);
             while(!isstream.eof()){
                 string tempStr;
@@ -692,13 +690,12 @@ void PrincipalADMIN(TCadena nombreFichero)
             else
             {
                 mkdir(rutaDefinitiva.c_str());
-                cout<<"-> Creada satisfactoriamente la base de datos '"<< tempNombre <<"' <-"<<endl;
+                cout<<"-> Creada CORRECTAMENTE la base de datos '"<< tempNombre <<"' <-"<<endl;
             }
         }
         else if(regex_match(consulta, cEliminarBaseDatos))
         {
-            string rutabasedatos = "c:\\BaseDeDatos\\BD\\";
-            string tempNombre;
+
             istringstream isstream(consulta);
             while(!isstream.eof()){
                 string tempStr;
@@ -742,7 +739,6 @@ void PrincipalADMIN(TCadena nombreFichero)
             else
             {
                 string rutabasedatos = "c:/BaseDeDatos/BD/";
-                string tempNombre;
                 istringstream isstream(consulta);
                 while(!isstream.eof()){
                     string tempStr;
@@ -891,21 +887,21 @@ void Comando_Comandos()
     cout<<"                   \\____/\\___/|_| |_| |_|\\__,_|_| |_|\\__,_|\\___/|___/"<<endl;
     cout<<""<<endl;
     cout<<"-a"<<endl;
-    cout<<"\tMuestra reglas basicas para majear las bases de datos."<<endl;
+    cout<<"\t\tMuestra reglas basicas para majear las bases de datos."<<endl;
     cout<<"-com"<<endl;
-    cout<<"\tMuestra todos los comandos disponibles y sus funciones."<<endl;
+    cout<<"\t\tMuestra todos los comandos disponibles y sus funciones."<<endl;
     cout<<"-l"<<endl;
-    cout<<"\tPermite limpiar la pantalla."<<endl;
+    cout<<"\t\tPermite limpiar la pantalla."<<endl;
     cout<<"SALIR"<<endl;
-    cout<<"\tCierra el programa."<<endl;
+    cout<<"\t\tCierra el programa."<<endl;
     cout<<"\n\n";
-    cout<<"\t\tComandos de Usuarios"<<endl;
+    cout<<"\t\t\tComandos de Usuarios"<<endl;
     cout<<"CREAR USUARIO"<<endl;
-    cout<<"\tPermite crear un usuario del rango administrador o comun."<<endl;
+    cout<<"\t\tPermite crear un usuario del rango administrador o comun."<<endl;
     cout<<"USUARIO"<<endl;
-    cout<<"\tMuestra el usuario con el que se ha conectado."<<endl;
+    cout<<"\t\tMuestra el usuario con el que se ha conectado."<<endl;
     cout<<"MOSTRAR USUARIO ADMINISTRADORES"<<endl;
-    cout<<"\tMuestra todos los usuarios con rango de Aministradores."<<endl;
+    cout<<"\t\Muestra todos los usuarios con rango de Aministradores."<<endl;
     cout<<"MOSTRAR USUARIO COMUNES"<<endl;
     cout<<"\tMuestra todos los usuarios con rango de Comunes."<<endl;
     cout<<"ELIMINAR USUARIO"<<endl;
@@ -913,21 +909,21 @@ void Comando_Comandos()
     cout<<"CERRAR"<<endl;
     cout<<"\tCierra la sesion."<<endl;
     cout<<"\n\n";
-    cout<<"\t\tComandos de Base de Datos"<<endl;
+    cout<<"\t\t\tComandos de Base de Datos"<<endl;
     cout<<"CREAR BASEDATOS nombre_bd"<<endl;
-    cout<<"\tPermite crear una base de datos."<<endl;
+    cout<<"\t\tPermite crear una base de datos."<<endl;
+    cout<<"USAR nombre_bd"<<endl;
+    cout<<"\t\tUso de una de las bases de datos ya creada previamente."<<endl;
     cout<<"RETIRAR BASEDATOS"<<endl;
-    cout<<"\tPermite dejar de usar la base de datos que esta seleccionada actualmente."<<endl;
-    cout<<"USAR BASEDATOS nombre_bd"<<endl;
-    cout<<"\tUso de una de las bases de datos ya creada previamente."<<endl;
+    cout<<"\t\Permite dejar de usar la base de datos que esta seleccionada actualmente."<<endl;
     cout<<"MOSTRAR BASEDATOS"<<endl;
     cout<<"\tMuestra todas las bases de datos existentes."<<endl;
     cout<<"ELIMINAR BASEDATOS nombre_bd"<<endl;
     cout<<"\tElimina la base de datos seleccionada."<<endl;
     cout<<"\n\n";
-    cout<<"\t\tComandos de TABLAS"<<endl;
+    cout<<"\t\t\tComandos de TABLAS"<<endl;
     cout<<"CREAR TABLA nombre_tabla"<<endl;
-    cout<<"\tPermite crear una tabla en una base de datos ya seleccionada."<<endl;
+    cout<<"\t\tPermite crear una tabla en una base de datos ya seleccionada."<<endl;
     cout<<"\n\n";
     cout<<"\t\tPROXIMANETE"<<endl;
     cout<<"ELIMINAR TABLA nombre_tabla"<<endl;
