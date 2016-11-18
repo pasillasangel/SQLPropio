@@ -570,6 +570,7 @@ void PrincipalADMIN(TCadena nombreFichero)
     string rutabasedatos = "c:\\BaseDeDatos\\BD\\";
     string tempNombre = "";
     string rutaDefinitiva = "";
+    string nombreTabla = "";
 	bool salida = false;
 	char desicion;
 
@@ -749,7 +750,7 @@ void PrincipalADMIN(TCadena nombreFichero)
                     isstream >> tempStr;
                     tempNombre = tempStr;
                 }
-
+                nombreTabla = tempNombre;
                 rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\" + tempNombre;
 
                 if (is_file(rutaDefinitiva))
@@ -793,16 +794,21 @@ void PrincipalADMIN(TCadena nombreFichero)
                     tempNombre = tempStr;
                 }
 
-                rutaDefinitiva = rutabasedatos + nombreBaseDatos;
+                cout<<"\t¿Seguro que desea eliminar la tabla '" + tempNombre + "'? (S/N): ";
+                cin>>desicion;
+                if (desicion == 'S' || desicion == 's')
+                {
+                    rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\" + tempNombre;
 
-                if(is_file(rutaDefinitiva))
-                {
-                    Comando_Eliminar_Usuario(rutaDefinitiva);
-                    cout<<" -> La Tabla '"<< tempNombre <<"' ha sido eliminado correctamente. <-"<<endl;
-                }
-                else
-                {
-                    cout<<"-> La tabla  '"<< tempNombre <<"' que desea eliminar no existe. Intente con otro nombre.<-"<<endl;
+                    if(is_file(rutaDefinitiva))
+                    {
+                        Comando_Eliminar_Usuario(rutaDefinitiva);
+                        cout<<" -> La Tabla '"<< tempNombre <<"' ha sido eliminado correctamente. <-"<<endl;
+                    }
+                    else
+                    {
+                        cout<<"-> La tabla  '"<< tempNombre <<"' que desea eliminar no existe. Intente con otro nombre.<-"<<endl;
+                    }
                 }
             }
         }
@@ -822,8 +828,6 @@ void PrincipalADMIN(TCadena nombreFichero)
                     tempNombre = tempStr;
                 }
                 rutaDefinitiva = rutabasedatos + nombreBaseDatos;
-                cout<<rutaDefinitiva;
-                cout<<"\n";
 
                 Comando_Mostrar_Tablas(rutaDefinitiva);
             }
