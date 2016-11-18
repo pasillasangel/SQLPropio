@@ -23,17 +23,17 @@ const char SP = ' ';
 int mensajeInicio = 0;
 
 //Expresiones regulares
+regex cSalir("^(salir|SALIR)$");
+regex cLimpiar("^(-l)$");
+regex cComando("^(-com)$");
+regex cAyuda("^(-a)$");
+
 regex cCrearUsuario("^(CREAR USUARIO|crear usuario)$");
 regex cEliminarUsuarios("^(eliminar usuario|ELIMINAR USUARIO)$");
 regex cMostrarUsuariosAdmin("^(mostrar usuarios administradores|MOSTRAR USUARIOS ADMINISTRADORES)$");
 regex cMostrarUsuariosComunes("^(mostrar usuarios comunes|MOSTRAR USUARIOS COMUNES)$");
 regex cUsuario("^(usuario|USUARIO)$");
 regex cCerrar("^(cerrar|CERRAR)$");
-
-regex cSalir("^(salir|SALIR)$");
-regex cLimpiar("^(-l)$");
-regex cComando("^(-com)$");
-regex cAyuda("^(-a)$");
 
 regex cCrearBaseDatos("^(crear basedatos\\s(\\w)+|CREAR BASEDATOS\\s(\\w)+)$");
 regex cUsarBaseDatos("^(usar\\s(\\w)+|USAR\\s(\\w)+)$");
@@ -42,7 +42,8 @@ regex cEliminarBaseDatos("^(eliminar basedatos\\s(\\w)+|ELIMINAR BASEDATOS\\s(\\
 regex cRetirarBaseDatos("^(retirar basedatos|RETIRAR BASEDATOS)$");
 
 regex cCrearTabla("^(crear tabla\\s(\\w)+|CREAR TABLA\\s(\\w)+)$");
-
+regex cEliminarTabla("^(eliminar tabla\\s(\\w)|ELIMINAR tabla\\s(\\w))$");
+regex cMostrarTablas("^(mostrar tablas|MOSTRAR TABLAS)$");
 //TIPOS
 typedef char TCadena[MAXCAD+1]; // MAXCAD caracteres + FINCAD
 struct Persona_R
@@ -564,15 +565,17 @@ void PrincipalComun(TCadena nombreFichero)
 void PrincipalADMIN(TCadena nombreFichero)
 {
     string nombreBaseDatos = "";
-    string rutabasedatos = "c:/BaseDeDatos/BD/";
+    //string rutabasedatos = "c:/BaseDeDatos/BD/";
+    string rutabasedatos = "c:\\BaseDeDatos\\BD\\";
     string tempNombre = "";
+    string rutaDefinitiva = "";
 	bool salida = false;
 	char desicion;
 
 	while(salida!= true)
     {
 		string consulta = "";
-
+        rutaDefinitiva = "";
 		if (mensajeInicio == 0)
 		{
 			//http://www.network-science.de/ascii/ - doom
@@ -662,7 +665,7 @@ void PrincipalADMIN(TCadena nombreFichero)
                 isstream >> tempStr;
                 tempNombre = tempStr;
             }
-            string rutaDefinitiva = rutabasedatos + tempNombre;
+            rutaDefinitiva = rutabasedatos + tempNombre;
             if (Buscar_Bd(rutaDefinitiva))
             {
                 nombreBaseDatos = tempNombre;
@@ -670,7 +673,7 @@ void PrincipalADMIN(TCadena nombreFichero)
             }
             else
             {
-                cout<<"-> NO se encontro la base de datos '"<< tempNombre <<"' <-"<<endl;
+                cout<<"-> NO se encontro la base de datos '"<< tempNombre <<"'.Intente con otro nombre. <-"<<endl;
             }
         }
         else if(regex_match(consulta, cCrearBaseDatos))
@@ -681,7 +684,7 @@ void PrincipalADMIN(TCadena nombreFichero)
                 isstream >> tempStr;
                 tempNombre = tempStr;
             }
-            string rutaDefinitiva = rutabasedatos + tempNombre;
+            rutaDefinitiva = rutabasedatos + tempNombre;
 
             if (Buscar_Bd(rutaDefinitiva))
             {
@@ -702,12 +705,13 @@ void PrincipalADMIN(TCadena nombreFichero)
                 isstream >> tempStr;
                 tempNombre = tempStr;
             }
-            string rutaDefinitiva = rutabasedatos + tempNombre;
+            rutaDefinitiva = rutabasedatos + tempNombre;
 
             if (Buscar_Bd(rutaDefinitiva))
             {
                 Comando_Eliminar_BD(rutaDefinitiva);
                 cout<<" -> La base de datos '"<< tempNombre <<"' se ha eliminado correctamente. <-"<<endl;
+                cout<<rutaDefinitiva<<endl;
             }
             else
             {
@@ -738,16 +742,30 @@ void PrincipalADMIN(TCadena nombreFichero)
             }
             else
             {
-                string rutabasedatos = "c:/BaseDeDatos/BD/";
                 istringstream isstream(consulta);
                 while(!isstream.eof()){
                     string tempStr;
                     isstream >> tempStr;
                     tempNombre = tempStr;
                 }
-                string rutaDefinitiva = rutabasedatos + tempNombre;
+                cout << "Nombre de la tabla es: "<< tempNombre << endl;
 
-                cout<<"Tabla creada correctamente: " + rutaDefinitiva<<endl;
+                cout<<"\n";
+
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\" + tempNombre;
+                cout<<rutaDefinitiva;
+                cout<<"\n";
+
+                if (is_file(rutaDefinitiva))
+                {
+                    cout<<"-> La tabla '" + tempNombre + "'que desea crear ya existe. Intente con otro nombre.<-"<<endl;
+                    //SLEEEEP
+                }
+                else
+                {
+                    ofstream fs(rutaDefinitiva);
+                    cout<<"-> Tabla '" + tempNombre + "' creada correctamente."<<endl;
+                }
             }
         }
         else if(regex_match(consulta, cRetirarBaseDatos))
@@ -771,7 +789,6 @@ void PrincipalADMIN(TCadena nombreFichero)
         {
             cout <<"Error: Error en su comando."<<endl;
         }
-
 	}
 	//pausaSinMensaje();
 
@@ -804,7 +821,6 @@ void Comando_BuscarEliminar_Usuarios()
         {
             cout<<"-> El Usuario '"<< nombreUsuario <<"' que desea eliminar no existe. <-"<<endl;
         }
-
 	}
 	else if(tipoUsuario=='2')
 	{
@@ -895,21 +911,21 @@ void Comando_Comandos()
     cout<<"SALIR"<<endl;
     cout<<"\t\tCierra el programa."<<endl;
     cout<<"\n\n";
-    cout<<"\t\t\tComandos de Usuarios"<<endl;
+    cout<<"\t\t\tCOMANDOS DE USUARIOS"<<endl;
     cout<<"CREAR USUARIO"<<endl;
     cout<<"\t\tPermite crear un usuario del rango administrador o comun."<<endl;
     cout<<"USUARIO"<<endl;
     cout<<"\t\tMuestra el usuario con el que se ha conectado."<<endl;
     cout<<"MOSTRAR USUARIO ADMINISTRADORES"<<endl;
-    cout<<"\t\Muestra todos los usuarios con rango de Aministradores."<<endl;
+    cout<<"\t\tMuestra todos los usuarios con rango de Aministradores."<<endl;
     cout<<"MOSTRAR USUARIO COMUNES"<<endl;
-    cout<<"\tMuestra todos los usuarios con rango de Comunes."<<endl;
+    cout<<"\t\tMuestra todos los usuarios con rango de Comunes."<<endl;
     cout<<"ELIMINAR USUARIO"<<endl;
     cout<<"\tPermite eliminar un usuario de ambos rangos."<<endl;
     cout<<"CERRAR"<<endl;
-    cout<<"\tCierra la sesion."<<endl;
+    cout<<"\t\tCierra la sesion."<<endl;
     cout<<"\n\n";
-    cout<<"\t\t\tComandos de Base de Datos"<<endl;
+    cout<<"\t\t\tCOMANDOS DE BASES DE DATOS"<<endl;
     cout<<"CREAR BASEDATOS nombre_bd"<<endl;
     cout<<"\t\tPermite crear una base de datos."<<endl;
     cout<<"USAR nombre_bd"<<endl;
@@ -917,11 +933,11 @@ void Comando_Comandos()
     cout<<"RETIRAR BASEDATOS"<<endl;
     cout<<"\t\Permite dejar de usar la base de datos que esta seleccionada actualmente."<<endl;
     cout<<"MOSTRAR BASEDATOS"<<endl;
-    cout<<"\tMuestra todas las bases de datos existentes."<<endl;
+    cout<<"\t\tMuestra todas las bases de datos existentes."<<endl;
     cout<<"ELIMINAR BASEDATOS nombre_bd"<<endl;
-    cout<<"\tElimina la base de datos seleccionada."<<endl;
+    cout<<"\t\tElimina la base de datos seleccionada."<<endl;
     cout<<"\n\n";
-    cout<<"\t\t\tComandos de TABLAS"<<endl;
+    cout<<"\t\t\tCOMANDOS DE TABLAS"<<endl;
     cout<<"CREAR TABLA nombre_tabla"<<endl;
     cout<<"\t\tPermite crear una tabla en una base de datos ya seleccionada."<<endl;
     cout<<"\n\n";
@@ -1017,30 +1033,30 @@ bool Buscar_Bd(string dir)
 
 bool is_dir(string dir)
 {
-  DIR * directorio;
-  if (directorio = opendir(dir.c_str()))
-  {
-    closedir(directorio);
-    return true;
-  }
-  else
-  {
-   return false;
-  }
+    DIR * directorio;
+    if (directorio = opendir(dir.c_str()))
+    {
+        closedir(directorio);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool is_file(string file)
 {
- FILE * archivo;
- if (archivo = fopen(file.c_str(), "r"))
- {
-  fclose(archivo);
-  return true;
- }
- else
- {
-  return false;
- }
+    FILE * archivo;
+    if (archivo = fopen(file.c_str(), "r"))
+    {
+        fclose(archivo);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void Comando_Eliminar_BD(string ruta)
