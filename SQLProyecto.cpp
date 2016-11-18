@@ -42,7 +42,7 @@ regex cEliminarBaseDatos("^(eliminar basedatos\\s(\\w)+|ELIMINAR BASEDATOS\\s(\\
 regex cRetirarBaseDatos("^(retirar basedatos|RETIRAR BASEDATOS)$");
 
 regex cCrearTabla("^(crear tabla\\s(\\w)+|CREAR TABLA\\s(\\w)+)$");
-regex cEliminarTabla("^(eliminar tabla\\s(\\w)|ELIMINAR tabla\\s(\\w))$");
+regex cEliminarTabla("^(eliminar tabla\\s(\\w)+|ELIMINAR TABLA\\s(\\w)+)$");
 regex cMostrarTablas("^(mostrar tablas|MOSTRAR TABLAS)$");
 //TIPOS
 typedef char TCadena[MAXCAD+1]; // MAXCAD caracteres + FINCAD
@@ -92,6 +92,7 @@ void Comando_BuscarEliminar_Usuarios();
 void Comando_Eliminar_Usuario(string ruta);
 bool Buscar_Bd(string dir);
 bool is_file(string file);
+void Comando_Mostrar_Tablas(string dir);
 
 //Metodo principal
 int main()
@@ -688,7 +689,7 @@ void PrincipalADMIN(TCadena nombreFichero)
 
             if (Buscar_Bd(rutaDefinitiva))
             {
-                cout<<" -> Ya existe una base de datos con el nombre: '"<< tempNombre <<"'. Intenta con otro nombre. <-"<<endl;
+                cout<<" -> Ya existe una base de datos con el nombre: '"<< tempNombre <<"'. Intente con otro nombre. <-"<<endl;
             }
             else
             {
@@ -715,7 +716,7 @@ void PrincipalADMIN(TCadena nombreFichero)
             }
             else
             {
-                cout<<"-> La base de datos '"<< tempNombre <<"' que desea eliminar no existe. <-"<<endl;
+                cout<<"-> La base de datos '"<< tempNombre <<"' que desea eliminar no existe. Intente con otro nombre. <-"<<endl;
             }
         }
         else if(regex_match(consulta,cEliminarUsuarios))
@@ -748,18 +749,13 @@ void PrincipalADMIN(TCadena nombreFichero)
                     isstream >> tempStr;
                     tempNombre = tempStr;
                 }
-                cout << "Nombre de la tabla es: "<< tempNombre << endl;
-
-                cout<<"\n";
 
                 rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\" + tempNombre;
-                cout<<rutaDefinitiva;
-                cout<<"\n";
 
                 if (is_file(rutaDefinitiva))
                 {
                     cout<<"-> La tabla '" + tempNombre + "'que desea crear ya existe. Intente con otro nombre.<-"<<endl;
-                    //SLEEEEP
+
                 }
                 else
                 {
@@ -779,6 +775,57 @@ void PrincipalADMIN(TCadena nombreFichero)
             {
                 cout<<" ->Retirada la Base de datos '" + nombreBaseDatos + "' CORRECTAMENTE. <-"<<endl;
                 nombreBaseDatos = "";
+            }
+        }
+        else if(regex_match(consulta, cEliminarTabla))
+        {
+            if(nombreBaseDatos=="")
+            {
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR BASEDATOS"<<endl;
+                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
+            }
+            else
+            {
+                istringstream isstream(consulta);
+                while(!isstream.eof()){
+                    string tempStr;
+                    isstream >> tempStr;
+                    tempNombre = tempStr;
+                }
+
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos;
+
+                if(is_file(rutaDefinitiva))
+                {
+                    Comando_Eliminar_Usuario(rutaDefinitiva);
+                    cout<<" -> La Tabla '"<< tempNombre <<"' ha sido eliminado correctamente. <-"<<endl;
+                }
+                else
+                {
+                    cout<<"-> La tabla  '"<< tempNombre <<"' que desea eliminar no existe. Intente con otro nombre.<-"<<endl;
+                }
+            }
+        }
+        else if(regex_match(consulta, cMostrarTablas))
+        {
+            if(nombreBaseDatos=="")
+            {
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR BASEDATOS"<<endl;
+                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
+            }
+            else
+            {
+                istringstream isstream(consulta);
+                while(!isstream.eof()){
+                    string tempStr;
+                    isstream >> tempStr;
+                    tempNombre = tempStr;
+                }
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos;
+                cout<<rutaDefinitiva;
+                cout<<"\n";
+
+                Comando_Mostrar_Tablas(rutaDefinitiva);
             }
         }
         else if(consulta=="")
@@ -1077,4 +1124,28 @@ void Comando_Eliminar_Usuario(string ruta)
     comando = "del " + ruta;
     system(comando.c_str());
     }
+}
+
+void Comando_Mostrar_Tablas(string dir)
+{
+    cout<<"+------------------+"<<endl;
+    cout<<"|       TABLAS     |"<<endl;
+    cout<<"+------------------+"<<endl;
+    //string dir = "c:/BaseDeDatos/Usuarios/Admin";
+    DIR * directorio;
+    struct dirent * elemento;
+    string elem;
+    if (directorio = opendir(dir.c_str()))
+    {
+        while (elemento = readdir(directorio))
+        {
+            elem = elemento->d_name;
+            if (elem != "." && elem != "..")
+            {
+                cout << "--> " <<elem<< endl;
+                //cout<<"+------------------+"<<endl;
+            }
+        }
+    }
+    closedir(directorio);
 }

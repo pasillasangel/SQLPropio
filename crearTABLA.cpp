@@ -14,7 +14,29 @@
 
 using namespace std;
 
-
+void Comando_Mostrar_Tablas(string dir)
+{
+    cout<<"+------------------+"<<endl;
+    cout<<"|       TABLAS     |"<<endl;
+    cout<<"+------------------+"<<endl;
+    //string dir = "c:/BaseDeDatos/Usuarios/Admin";
+    DIR * directorio;
+    struct dirent * elemento;
+    string elem;
+    if (directorio = opendir(dir.c_str()))
+    {
+        while (elemento = readdir(directorio))
+        {
+            elem = elemento->d_name;
+            if (elem != "." && elem != "..")
+            {
+                cout << "--> " <<elem<< endl;
+                //cout<<"+------------------+"<<endl;
+            }
+        }
+    }
+    closedir(directorio);
+}
 
 bool is_file(string file)
 {
@@ -58,20 +80,24 @@ int main(int argc, char** argv){
 
     cout<<"\n";
 
-    rutaDefinitiva = rutabasedatos + nombreBaseDATOS + "\\" + tempNombre;
+    rutaDefinitiva = rutabasedatos + nombreBaseDATOS;
 	cout<<rutaDefinitiva;
 	cout<<"\n";
 
-        if(is_file(rutaDefinitiva))
-        {
-            Comando_Eliminar_Usuario(rutaDefinitiva);
-            cout<<" -> La Tabla '"<< tempNombre <<"' ha sido eliminado correctamente. <-"<<endl;
-        }
-        else
-        {
-            cout<<"-> La tabla  '"<< tempNombre <<"' que desea eliminar no existe. Intente con otro nombre.<-"<<endl;
-        }
+	Comando_Mostrar_Tablas(rutaDefinitiva);
+
 /*
+    //Eliminar tabla
+    if(is_file(rutaDefinitiva))
+    {
+        Comando_Eliminar_Usuario(rutaDefinitiva);
+        cout<<" -> La Tabla '"<< tempNombre <<"' ha sido eliminado correctamente. <-"<<endl;
+    }
+    else
+    {
+        cout<<"-> La tabla  '"<< tempNombre <<"' que desea eliminar no existe. Intente con otro nombre.<-"<<endl;
+    }
+
     //CREAR TABLA
 	if (is_file(rutaDefinitiva))
     {
