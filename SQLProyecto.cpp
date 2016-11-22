@@ -1,4 +1,3 @@
-
 //Librerias
 #include <cstdlib>
 #include <iostream>
@@ -35,14 +34,14 @@ regex cMostrarUsuariosComunes("^(mostrar usuarios comunes|MOSTRAR USUARIOS COMUN
 regex cUsuario("^(usuario|USUARIO)$");
 regex cCerrar("^(cerrar|CERRAR)$");
 
-regex cCrearBaseDatos("^(crear basedatos\\s(\\w)+|CREAR BASEDATOS\\s(\\w)+)$");
-regex cUsarBaseDatos("^(usar\\s(\\w)+|USAR\\s(\\w)+)$");
+regex cCrearBaseDatos("^(crear basedatos\\s[A-Za-z](\\w)+|CREAR BASEDATOS\\s[A-Za-z](\\w)+)$");
+regex cUsarBaseDatos("^(usar\\s[A-Za-z](\\w)+|USAR\\s[A-Za-z](\\w)+)$");
 regex cMostrarBaseDatos("^(mostrar basedatos|MOSTRAR BASEDATOS)$");
-regex cEliminarBaseDatos("^(eliminar basedatos\\s(\\w)+|ELIMINAR BASEDATOS\\s(\\w)+)$");
+regex cEliminarBaseDatos("^(eliminar basedatos\\s[A-Za-z](\\w)+|ELIMINAR BASEDATOS\\s[A-Za-z](\\w)+)$");
 regex cRetirarBaseDatos("^(retirar basedatos|RETIRAR BASEDATOS)$");
 
-regex cCrearTabla("^(crear tabla\\s(\\w)+|CREAR TABLA\\s(\\w)+)$");
-regex cEliminarTabla("^(eliminar tabla\\s(\\w)+|ELIMINAR TABLA\\s(\\w)+)$");
+regex cCrearTabla("^(crear tabla\\s[A-Za-z](\\w)+|CREAR TABLA\\s[A-Za-z](\\w)+)$");
+regex cEliminarTabla("^(eliminar tabla\\s[A-Za-z](\\w)+|ELIMINAR TABLA\\s[A-Za-z](\\w)+)$");
 regex cMostrarTablas("^(mostrar tablas|MOSTRAR TABLAS)$");
 //TIPOS
 typedef char TCadena[MAXCAD+1]; // MAXCAD caracteres + FINCAD
@@ -739,7 +738,7 @@ void PrincipalADMIN(TCadena nombreFichero)
         {
             if (nombreBaseDatos=="")
             {
-                cout<<"Primero debes de seleccionar una base de datos con el comando USAR BASEDATOS"<<endl;
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
                 cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
             }
             else
@@ -769,7 +768,7 @@ void PrincipalADMIN(TCadena nombreFichero)
         {
             if (nombreBaseDatos=="")
             {
-                cout<<"Primero debes de seleccionar una base de datos con el comando USAR BASEDATOS"<<endl;
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
                 cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
             }
             else
@@ -782,7 +781,7 @@ void PrincipalADMIN(TCadena nombreFichero)
         {
             if(nombreBaseDatos=="")
             {
-                cout<<"Primero debes de seleccionar una base de datos con el comando USAR BASEDATOS"<<endl;
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
                 cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
             }
             else
@@ -816,7 +815,7 @@ void PrincipalADMIN(TCadena nombreFichero)
         {
             if(nombreBaseDatos=="")
             {
-                cout<<"Primero debes de seleccionar una base de datos con el comando USAR BASEDATOS"<<endl;
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
                 cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
             }
             else
@@ -992,9 +991,13 @@ void Comando_Comandos()
     cout<<"CREAR TABLA nombre_tabla"<<endl;
     cout<<"\t\tPermite crear una tabla en una base de datos ya seleccionada."<<endl;
     cout<<"\n\n";
-    cout<<"\t\tPROXIMANETE"<<endl;
-    cout<<"ELIMINAR TABLA nombre_tabla"<<endl;
-    cout<<"MOSTRAR TABLAS"<<endl;
+    cout<<"\t\t\tPROXIMANETE"<<endl;
+    cout<<"\tELIMINAR TABLA nombre_tabla"<<endl;
+    cout<<"\tPermite eliminar una tabla existen dentro de una base datos."<<endl;
+    cout<<"\tMOSTRAR TABLAS"<<endl;
+    cout<<"\tMuestra todoas las tablas que contiene la base de datos seleccionada."<<endl;
+    cout<<"\tEXPLICAR nombre_tabla"<<endl;
+    cout<<"\tMuestra todos los atributos de la tabla con sus respectivos tipos de datos."<<endl;
 }
 
 void Comando_Mostrar_Usuarios_Admin()
