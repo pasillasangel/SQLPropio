@@ -11,6 +11,7 @@
 #include <cstring> //Validacion char
 #include <ctype.h> //Minusculas
 #include <regex> //Expresiones Regulares
+#define TAM 10
 
 using namespace std;
 
@@ -42,6 +43,9 @@ bool is_file(string file)
 int main(int argc, char** argv){
 
     bool bandera = false;
+    bool repetir = false;
+    int contadorGA = 0;
+    string arrayGA[TAM];
     string GetTP = "";
     string query = "";
 
@@ -82,6 +86,9 @@ int main(int argc, char** argv){
             else
             {
                 bandera = false;
+                repetir = false;
+                contadorGA = 0;
+
                 //Creacion de la tabla
                 ofstream fs(rutaDefinitiva);
                 //Cambiando la direccion
@@ -112,13 +119,36 @@ int main(int argc, char** argv){
 
                             if(regex_match(GetTP,TipoDato))
                             {
-                                //GetAtributo - Nombre Atributo
-                                //TP - Tipo Datos
-                                atributos<<GetAtributo1<<" "<<GetTP<<endl;
-                                //Salir del programa
-                                bandera = true;
+                                for(unsigned int conta = 0; conta < TAM; conta++)
+                                {
+                                    if(arrayGA[conta]==GetAtributo1)
+                                    {
+                                        //Si es que encontro un campo igual, repetir se ponga true
+                                        repetir = true;
+                                    }
+                                }
 
-                                cout<<" -> La tabla '" + tempNombre +"' ha sido creada correctamente. <- "<<endl;
+                                if(repetir)
+                                {
+                                    bandera = true;
+                                    cout<<"-> Error: El atributo '" + GetAtributo1 + "' se ha repetido. Intente otra vez.<-"<<endl;
+                                }
+                                else
+                                {
+                                    //Agregamos el atributo al array, para que no se vuelva elegir
+                                    arrayGA[contadorGA] = GetAtributo1;
+
+                                    //Aumentar el contador de Array de Atributos
+                                    contadorGA++;
+
+                                    //GetAtributo - Nombre Atributo
+                                    //TP - Tipo Datos
+                                    atributos<<GetAtributo1<<" "<<GetTP<<endl;
+                                    //Salir del programa
+                                    bandera = true;
+
+                                    cout<<" -> La tabla '" + tempNombre +"' ha sido creada correctamente. <- "<<endl;
+                                }
 
                             }
                             else
@@ -142,9 +172,32 @@ int main(int argc, char** argv){
 
                             if(regex_match(GetTP,TipoDato))
                             {
-                                //GetAtributo - Nombre Atributo
-                                //TP - Tipo Datos
-                                atributos<<GetAtributo<<" "<<GetTP<<endl;
+                                for(unsigned int conta = 0; conta < TAM; conta++)
+                                {
+                                    if(arrayGA[conta]==GetAtributo)
+                                    {
+                                        //Si es que encontro un campo igual, repetir se ponga true
+                                        repetir = true;
+                                    }
+                                }
+
+                                if(repetir)
+                                {
+                                    bandera = true;
+                                    cout<<"-> Error: El atributo '" + GetAtributo + "' se ha repetido. Intente otra vez.<-"<<endl;
+                                }
+                                else
+                                {
+                                    //Agregamos el atributo al array, para que no se vuelva elegir
+                                    arrayGA[contadorGA] = GetAtributo;
+
+                                    //Aumentar el contador de Array de Atributos
+                                    contadorGA++;
+
+                                    //GetAtributo - Nombre Atributo
+                                    //TP - Tipo Datos
+                                    atributos<<GetAtributo<<" "<<GetTP<<endl;
+                                }
                             }
                             else
                             {
@@ -166,12 +219,23 @@ int main(int argc, char** argv){
                     cout<<"-> Error al crear la tabla '" + tempNombre + "'. Intentelo de nuevo. <- 3"<<endl;
                 }
             }
+
+
+            //Limpiando el arreglo
+            for (unsigned int conta = 0; conta < TAM; conta++)
+            {
+                arrayGA[conta] = "";
+            }
+
         }
     }
     else
     {
         cout<<"NOOOOOOOOOOOOOOOOOOOOOOOOOOO"<<endl;
     }
+
+    return 0;
+}
 
 	//Comando_Mostrar_Tablas(rutaDefinitiva);
 
@@ -199,8 +263,6 @@ int main(int argc, char** argv){
         cout<<"-> Tabla '" + tempNombre + "' creada correctamente."<<endl;
     }
 */
-    return 0;
-}
 
 /*
 void Comando_Mostrar_Tablas(string dir)
