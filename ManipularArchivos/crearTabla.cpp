@@ -14,10 +14,15 @@
 
 using namespace std;
 
-//Eliminar los archivos al dar errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+/*
+    Eliminar los archivos al dar errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+    -- Agregar el mensaje "EXITOSO"
+    Hacer un arreglo para evitar que se agregen campos repetidos
+*/
 
 regex cCrearTabla("^(crear tabla\\s(\\w)+|CREAR TABLA\\s(\\w)+)$");
 regex cInsertarAtributo("^([A-Za-z](\\w)+\\s(\\w)+,)$");
+regex cInsertarAtributoFinal("^([A-Za-z](\\w)+\\s(\\w)+;)$");
 regex TipoDato("^(ent|ENT|varcarac|VARCARAC|\\;)$");
 
 bool is_file(string file)
@@ -77,7 +82,6 @@ int main(int argc, char** argv){
             else
             {
                 bandera = false;
-                int zzzContador = 0;
                 //Creacion de la tabla
                 ofstream fs(rutaDefinitiva);
                 //Cambiando la direccion
@@ -93,19 +97,39 @@ int main(int argc, char** argv){
                         cout<<"\t->";
                         getline(cin, query, '\n');
 
-                        if(query==";" && zzzContador==0)
+                        if(regex_match(query, cInsertarAtributoFinal))
                         {
-                            bandera = true;
-                            cout<<"-> Error: No agrego ningun Atributo."<<endl;
-                        }
-                        else if(query==";" && zzzContador>0)
-                        {
-                            bandera = true;
-                            cout<<"-> Se ha creado correctamente la tabla '" + tempNombre + "' correctamente."<<endl;
+                            //Quitarle la coma
+                            string completo1 = query.substr(0, query.find(";"));
+                            string GetAtributo1 = completo1.substr(0, completo1.find(" "));
+                            istringstream coma1(completo1);
+                            while(!coma1.eof())
+                            {
+                                string tempStr;
+                                coma1 >> tempStr;
+                                GetTP = tempStr;
+                            }
+
+                            if(regex_match(GetTP,TipoDato))
+                            {
+                                //GetAtributo - Nombre Atributo
+                                //TP - Tipo Datos
+                                atributos<<GetAtributo1<<" "<<GetTP<<endl;
+                                //Salir del programa
+                                bandera = true;
+
+                                cout<<" -> La tabla '" + tempNombre +"' ha sido creada correctamente. <- "<<endl;
+
+                            }
+                            else
+                            {
+                                bandera=true;
+                                cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <- 1"<<endl;
+                            }
                         }
                         else if(regex_match(query,cInsertarAtributo))
                         {
-                             //Quitarle la coma
+                            //Quitarle la coma
                             string completo = query.substr(0, query.find(","));
                             string GetAtributo = completo.substr(0, completo.find(" "));
                             istringstream coma(completo);
@@ -118,11 +142,9 @@ int main(int argc, char** argv){
 
                             if(regex_match(GetTP,TipoDato))
                             {
-                                zzzContador++;
                                 //GetAtributo - Nombre Atributo
                                 //TP - Tipo Datos
                                 atributos<<GetAtributo<<" "<<GetTP<<endl;
-
                             }
                             else
                             {
