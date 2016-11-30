@@ -30,6 +30,18 @@ regex cInsertarAtributoFinal("^([A-Za-z](\\w)+\\s(\\w)+;)$");
 regex cInsertarAtributoPrimario("^([A-Za-z](\\w)+\\s(\\w)+\\s(PRIMARIO|primario),)$");
 regex cInsertarAtributoFinalPrimario("^([A-Za-z](\\w)+\\s(\\w)+\\s(PRIMARIO|primario);)$");
 regex TipoDato("^(ent|ENT|var|VAR|)$");
+void Comando_Eliminar_Usuario(string ruta);
+bool is_file(string file);
+void Comando_Eliminar_Usuario(string ruta)
+{
+    string comando; //rmdir o del
+    if (is_file(ruta))
+    {
+    comando = "del " + ruta;
+    system(comando.c_str());
+    }
+}
+
 
 bool is_file(string file)
 {
@@ -57,6 +69,9 @@ int main(int argc, char** argv){
     int cPalabra = 0;
     //Para saber que solo se ingreso una llave primaria
     bool bPrimario = false;
+
+    //Si por alguna razon hubo error al ingresar campos, que elimine los archivos temp
+    bool errorAtr = false;
     //Arreglo de string para almacenar los campos  (para que no se repitan) y su contador
     string arrayGA[TAM];
     int contadorGA = 0;
@@ -107,7 +122,7 @@ int main(int argc, char** argv){
                 repetir = false;
                 bPrimario = false;
                 contadorGA = 0;
-
+                errorAtr = false;
 
                 //Creacion de la tabla
                 ofstream fs(rutaDefinitiva);
@@ -130,6 +145,7 @@ int main(int argc, char** argv){
                         {
                             if (bPrimario)
                             {
+                                errorAtr = true;
                                 bandera = true;
                                 cout<<" -> Error: Ya ingreso un valor primario. No puede tener dos campos primarios una tabla.";
                             }
@@ -166,6 +182,7 @@ int main(int argc, char** argv){
 
                                     if(repetir)
                                     {
+                                        errorAtr = true;
                                         bandera = true;
                                         cout<<"-> Error: El atributo '" + GetAtributo1 + "' se ha repetido. Intente otra vez.<-"<<endl;
                                     }
@@ -189,6 +206,7 @@ int main(int argc, char** argv){
                                 }
                                 else
                                 {
+                                    errorAtr = true;
                                     bandera=true;
                                     cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <- "<<endl;
                                 }
@@ -198,6 +216,7 @@ int main(int argc, char** argv){
                         {
                             if (bPrimario)
                             {
+                                errorAtr = true;
                                 bandera = true;
                                 cout<<" -> Error: Ya ingreso un valor primario. No puede tener dos campos primarios una tabla.";
                             }
@@ -232,6 +251,7 @@ int main(int argc, char** argv){
 
                                     if(repetir)
                                     {
+                                        errorAtr = true;
                                         bandera = true;
                                         cout<<"-> Error: El atributo '" + GetAtributo + "' se ha repetido. Intente otra vez.<-"<<endl;
                                     }
@@ -250,6 +270,7 @@ int main(int argc, char** argv){
                                 }
                                 else
                                 {
+                                    errorAtr = true;
                                     bandera=true;
                                     cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <-"<<endl;
                                 }
@@ -281,6 +302,7 @@ int main(int argc, char** argv){
 
                                 if(repetir)
                                 {
+                                    errorAtr = true;
                                     bandera = true;
                                     cout<<"-> Error: El atributo '" + GetAtributo1 + "' se ha repetido. Intente otra vez.<-"<<endl;
                                 }
@@ -304,6 +326,7 @@ int main(int argc, char** argv){
                             }
                             else
                             {
+                                errorAtr = true;
                                 bandera=true;
                                 cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <- "<<endl;
                             }
@@ -334,6 +357,8 @@ int main(int argc, char** argv){
 
                                 if(repetir)
                                 {
+                                    //Eliminar archivos
+                                    errorAtr = true;
                                     bandera = true;
                                     cout<<"-> Error: El atributo '" + GetAtributo + "' se ha repetido. Intente otra vez.<-"<<endl;
                                 }
@@ -352,12 +377,15 @@ int main(int argc, char** argv){
                             }
                             else
                             {
+                                errorAtr = true;
                                 bandera=true;
                                 cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <-"<<endl;
                             }
                         }
                         else
                         {
+                            //Eliminar archivos
+                            errorAtr = true;
                             bandera = true;
                             cout<<" -> Error: Revise su instruccion. Intente de nuevo. <-"<<endl;
                         }
@@ -371,6 +399,14 @@ int main(int argc, char** argv){
                 }
             }
 
+            //eliminar arhivos temporales por si llega a ver error
+            if (errorAtr)
+            {
+                //tabla
+                Comando_Eliminar_Usuario(rutaDefinitiva1);
+                //atributos
+                Comando_Eliminar_Usuario(rutaDefinitiva);
+            }
 
             //Limpiando el arreglo
             for (unsigned int conta = 0; conta < TAM; conta++)
@@ -449,15 +485,5 @@ bool is_file(string file)
         return false;
     }
 }
-
-void Comando_Eliminar_Usuario(string ruta)
-{
-    string comando; //rmdir o del
-    if (is_file(ruta))
-    {
-    comando = "del " + ruta;
-    system(comando.c_str());
-    }
-}
-
 */
+
