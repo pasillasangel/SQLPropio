@@ -16,15 +16,20 @@
 using namespace std;
 
 /*
-    Eliminar los archivos al dar errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+    Problemas por solucionar
     -- Agregar el mensaje "EXITOSO"
-    Hacer un arreglo para evitar que se agregen campos repetidos
+    -- Hacer un arreglo para evitar que se agregen campos repetidos
+    Eliminar los archivos al dar errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+    Identificar los campos primarios
+    Que solo se pueda ingresarn un campo primario por tabla
 */
 
 regex cCrearTabla("^(crear tabla\\s(\\w)+|CREAR TABLA\\s(\\w)+)$");
 regex cInsertarAtributo("^([A-Za-z](\\w)+\\s(\\w)+,)$");
 regex cInsertarAtributoFinal("^([A-Za-z](\\w)+\\s(\\w)+;)$");
-regex TipoDato("^(ent|ENT|varcarac|VARCARAC|\\;)$");
+regex cInsertarAtributoPrimario("^([A-Za-z](\\w)+\\s(\\w)+\\s(PRIMARIO|primario),)$");
+regex cInsertarAtributoFinalPrimario("^([A-Za-z](\\w)+\\s(\\w)+\\s(PRIMARIO|primario);)$");
+regex TipoDato("^(ent|ENT|var|VAR|)$");
 
 bool is_file(string file)
 {
@@ -41,12 +46,25 @@ bool is_file(string file)
 }
 
 int main(int argc, char** argv){
-
+        //***
+        //Variables
+        //***
+    //Para salir del ciclo de ingrsar 'campos'
     bool bandera = false;
+    //Para saber cuando se repitio un campo
     bool repetir = false;
-    int contadorGA = 0;
+    //Para contar cada palabra y tomar solo TIPO DE DATO y validarlo
+    int cPalabra = 0;
+    //Para saber que solo se ingreso una llave primaria
+    bool bPrimario = false;
+    //Arreglo de string para almacenar los campos  (para que no se repitan) y su contador
     string arrayGA[TAM];
+    int contadorGA = 0;
+
+    //Almanecenara el TIPO DE DATO
     string GetTP = "";
+
+    //Almanecenara todo la instruccion
     string query = "";
 
     string rutaDefinitiva;
@@ -87,7 +105,9 @@ int main(int argc, char** argv){
             {
                 bandera = false;
                 repetir = false;
+                bPrimario = false;
                 contadorGA = 0;
+
 
                 //Creacion de la tabla
                 ofstream fs(rutaDefinitiva);
@@ -101,10 +121,141 @@ int main(int argc, char** argv){
                 {
                     do
                     {
+                        //contador de palabra a 0
+                        cPalabra = 0;
+
                         cout<<"\t->";
                         getline(cin, query, '\n');
+                        if (regex_match(query,cInsertarAtributoFinalPrimario))
+                        {
+                            if (bPrimario)
+                            {
+                                bandera = true;
+                                cout<<" -> Error: Ya ingreso un valor primario. No puede tener dos campos primarios una tabla.";
+                            }
+                            else
+                            {
+                                //para saber cuando se ingreso un valor primario
+                                bPrimario = true;
 
-                        if(regex_match(query, cInsertarAtributoFinal))
+                                //Quitarle la coma
+                                string completo1 = query.substr(0, query.find(";"));
+                                string GetAtributo1 = completo1.substr(0, completo1.find(" "));
+                                istringstream coma1(completo1);
+                                while(!coma1.eof())
+                                {
+                                    string tempStr;
+                                    coma1 >> tempStr;
+                                    if(cPalabra==1)
+                                    {
+                                        GetTP = tempStr;
+                                    }
+                                    cPalabra++;
+                                }
+
+                                if(regex_match(GetTP,TipoDato))
+                                {
+                                    for(unsigned int conta = 0; conta < TAM; conta++)
+                                    {
+                                        if(arrayGA[conta]==GetAtributo1)
+                                        {
+                                            //Si es que encontro un campo igual, repetir se ponga true
+                                            repetir = true;
+                                        }
+                                    }
+
+                                    if(repetir)
+                                    {
+                                        bandera = true;
+                                        cout<<"-> Error: El atributo '" + GetAtributo1 + "' se ha repetido. Intente otra vez.<-"<<endl;
+                                    }
+                                    else
+                                    {
+                                        //Agregamos el atributo al array, para que no se vuelva elegir
+                                        arrayGA[contadorGA] = GetAtributo1;
+
+                                        //Aumentar el contador de Array de Atributos
+                                        contadorGA++;
+
+                                        //GetAtributo - Nombre Atributo
+                                        //TP - Tipo Datos
+                                        atributos<<GetAtributo1<<" "<<GetTP<<" Primario"<<endl;
+                                        //Salir del programa
+                                        bandera = true;
+
+                                        cout<<" -> La tabla '" + tempNombre +"' ha sido creada correctamente. <- "<<endl;
+                                    }
+
+                                }
+                                else
+                                {
+                                    bandera=true;
+                                    cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <- "<<endl;
+                                }
+                            }
+                        }
+                        else if (regex_match(query,cInsertarAtributoPrimario))
+                        {
+                            if (bPrimario)
+                            {
+                                bandera = true;
+                                cout<<" -> Error: Ya ingreso un valor primario. No puede tener dos campos primarios una tabla.";
+                            }
+                            else
+                            {
+                                //para saber cuando se ingreso un valor primario
+                                bPrimario = true;
+                                //Quitarle la coma
+                                string completo = query.substr(0, query.find(","));
+                                string GetAtributo = completo.substr(0, completo.find(" "));
+                                istringstream coma(completo);
+                                while(!coma.eof())
+                                {
+                                    string tempStr;
+                                    coma >> tempStr;
+                                    if(cPalabra==1)
+                                    {
+                                        GetTP = tempStr;
+                                    }
+                                    cPalabra++;
+                                }
+                                if(regex_match(GetTP,TipoDato))
+                                {
+                                    for(unsigned int conta = 0; conta < TAM; conta++)
+                                    {
+                                        if(arrayGA[conta]==GetAtributo)
+                                        {
+                                            //Si es que encontro un campo igual, repetir se ponga true
+                                            repetir = true;
+                                        }
+                                    }
+
+                                    if(repetir)
+                                    {
+                                        bandera = true;
+                                        cout<<"-> Error: El atributo '" + GetAtributo + "' se ha repetido. Intente otra vez.<-"<<endl;
+                                    }
+                                    else
+                                    {
+                                        //Agregamos el atributo al array, para que no se vuelva elegir
+                                        arrayGA[contadorGA] = GetAtributo;
+
+                                        //Aumentar el contador de Array de Atributos
+                                        contadorGA++;
+
+                                        //GetAtributo - Nombre Atributo
+                                        //TP - Tipo Datos
+                                        atributos<<GetAtributo<<" "<<GetTP<<" Primario"<<endl;
+                                    }
+                                }
+                                else
+                                {
+                                    bandera=true;
+                                    cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <-"<<endl;
+                                }
+                            }
+                        }
+                        else if(regex_match(query, cInsertarAtributoFinal))
                         {
                             //Quitarle la coma
                             string completo1 = query.substr(0, query.find(";"));
@@ -143,7 +294,7 @@ int main(int argc, char** argv){
 
                                     //GetAtributo - Nombre Atributo
                                     //TP - Tipo Datos
-                                    atributos<<GetAtributo1<<" "<<GetTP<<endl;
+                                    atributos<<GetAtributo1<<" "<<GetTP<<" No"<<endl;
                                     //Salir del programa
                                     bandera = true;
 
@@ -154,7 +305,7 @@ int main(int argc, char** argv){
                             else
                             {
                                 bandera=true;
-                                cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <- 1"<<endl;
+                                cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <- "<<endl;
                             }
                         }
                         else if(regex_match(query,cInsertarAtributo))
@@ -196,19 +347,19 @@ int main(int argc, char** argv){
 
                                     //GetAtributo - Nombre Atributo
                                     //TP - Tipo Datos
-                                    atributos<<GetAtributo<<" "<<GetTP<<endl;
+                                    atributos<<GetAtributo<<" "<<GetTP<<" No"<<endl;
                                 }
                             }
                             else
                             {
                                 bandera=true;
-                                cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <- 1"<<endl;
+                                cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <-"<<endl;
                             }
                         }
                         else
                         {
                             bandera = true;
-                            cout<<" -> Error: Revise su instruccion. Intente de nuevo. <- 2"<<endl;
+                            cout<<" -> Error: Revise su instruccion. Intente de nuevo. <-"<<endl;
                         }
                     }while(bandera!=true);
 
@@ -216,7 +367,7 @@ int main(int argc, char** argv){
                 }
                 else
                 {
-                    cout<<"-> Error al crear la tabla '" + tempNombre + "'. Intentelo de nuevo. <- 3"<<endl;
+                    cout<<"-> Error al crear la tabla '" + tempNombre + "'. Intentelo de nuevo. <-"<<endl;
                 }
             }
 
@@ -228,10 +379,6 @@ int main(int argc, char** argv){
             }
 
         }
-    }
-    else
-    {
-        cout<<"NOOOOOOOOOOOOOOOOOOOOOOOOOOO"<<endl;
     }
 
     return 0;
