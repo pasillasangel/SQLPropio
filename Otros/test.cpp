@@ -12,7 +12,8 @@ main()
 	printf("Ingrese el numero que desea eleval al cubo:");
 	scanf ("%d", &num);
 	int n = calcular(num);
-	printf("El area es: %d", n);	
+	printf("El cubo es: %d", n);
+	return 0;	
 }
 		
 	

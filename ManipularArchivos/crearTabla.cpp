@@ -19,9 +19,9 @@ using namespace std;
     Problemas por solucionar
     -- Agregar el mensaje "EXITOSO"
     -- Hacer un arreglo para evitar que se agregen campos repetidos
-    Eliminar los archivos al dar errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
-    Identificar los campos primarios
-    Que solo se pueda ingresarn un campo primario por tabla
+    -- Eliminar los archivos al dar errorrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+    -- Identificar los campos primarios
+    -- Que solo se pueda ingresarn un campo primario por tabla
 */
 
 regex cCrearTabla("^(crear tabla\\s(\\w)+|CREAR TABLA\\s(\\w)+)$");
@@ -123,6 +123,7 @@ int main(int argc, char** argv){
                 bPrimario = false;
                 contadorGA = 0;
                 errorAtr = false;
+                query = "";
 
                 //Creacion de la tabla
                 ofstream fs(rutaDefinitiva);
@@ -413,6 +414,8 @@ int main(int argc, char** argv){
             {
                 arrayGA[conta] = "";
             }
+
+            query = "";
 
         }
     }
