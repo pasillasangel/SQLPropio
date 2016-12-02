@@ -13,15 +13,16 @@
 #include <regex> //Expresiones Regulares
 using namespace std;
 int main(){
-    string a = "012345";
-    //if(a[1]=='b')
-    if(strcmp(a[1], ',')==0)
-    {
-         cout<<"correct";
-    }
-    else
-    {
-        cout<<"maaaalllllllllll";
-    }
-    return 0;
+
+        for (int i = 0; i < 100; i++) {
+            if (i % 3 == 0) {
+                cout<<i+" CHOCO"<<endl;
+            }
+            if (i % 5 == 0) {
+                cout<<i+" LATE"<<endl;
+            }
+            if (i % 15 == 0) {
+                cout<<i+" CHOCOLATE   "<<endl;
+            }
+        }
 }

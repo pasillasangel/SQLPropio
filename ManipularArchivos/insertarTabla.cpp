@@ -39,6 +39,7 @@ main()
     string arrayNombresCampos[TAM];
     string arrayTipoDato[TAM];
     string CamposInsert[TAM];
+    string arrayExitoso[TAM];
     string axuCampos = "";
     string query = "";
 
@@ -184,7 +185,7 @@ main()
                             //conocer la longitud del string
                             int longitudQ = query_corte.length();
 
-                            //separar los campos introducirlos
+                            //separar los campos introducirdos
                             for(int i =0; i<longitudQ; i++)
                             {
                                 //Ingresar datos
@@ -210,8 +211,11 @@ main()
                             //Ingresar el ultimo valor
                             CamposInsert[numCampos] = axuCampos;
 
-                            //Aumentar
+                            //Aumentar el campo
                             numCampos++;
+
+                            //Limpiar la variable auxiliar
+                            axuCampos = "";
 
                             //Si son difirentes error, debera de dar igual si no esta mal
                             if(numCampos!=num_campos)
@@ -231,32 +235,160 @@ main()
                                         {
                                             bandValidCampo = true;
                                         }
-                                        //campoExitoso++;
                                     }
                                 }
+
+
                                 //Si llego a haber algun algun error al validar los campos, no introducirlos
                                 if (bandValidCampo)
                                 {
+                                    //Salir del programa y mensaje
                                     bandInsertar = true;
                                     cout<<"\nERROR: Ingrese los datos correctos. Intente otra vez."<<endl;
                                 }
                                 else
                                 {
-                                    //Si no hay error ingresa los datos pero los datos no se
-                                    //ingresaran hasta que ingrese el comando con ';' al final.
-                                    //Los valores ya se guardaron en el arreglo 'CamposInsert'
+                                    //Pasar los valores a un arreglo
+                                    for(int i = 0; i <numCampos; i++)
+                                    {
+                                        arrayExitoso[campoExitoso] = CamposInsert[i];
+                                        campoExitoso++;
+                                    }
                                 }
                             }
                         }
                         else if (regex_match(query, cInsertarTablaDatosFinal))
                         {
+                            //Quitarle los dos puntos
+                            string query_corte = query.substr(0, query.find(";"));
 
+                            //conocer la longitud del string
+                            int longitudQ = query_corte.length();
+
+                            //separar los campos introducirdos
+                            for(int i =0; i<longitudQ; i++)
+                            {
+                                //Ingresar datos
+                                axuCampos = axuCampos + query_corte[i];
+
+                                //Encontrar la coma para separala
+                                if(regex_match(axuCampos, cComa))
+                                {
+                                    //Quitarle la coma
+                                    string ax = axuCampos.substr(0, axuCampos.find(","));
+
+                                    //Asignarle valor al arreglo
+                                    CamposInsert[numCampos] = ax;
+
+                                    //Aumentarle valor al campo
+                                    numCampos++;
+
+                                    //Limpiamos la variable, para ingresar otro campos
+                                    axuCampos = "";
+                                }
+                            }
+
+                            //Ingresar el ultimo valor
+                            CamposInsert[numCampos] = axuCampos;
+
+                            //Aumentar el campo
+                            numCampos++;
+
+                            //Limpiar la variable auxiliar
+                            axuCampos = "";
+
+                            //Si son difirentes error, debera de dar igual si no esta mal
+                            if(numCampos!=num_campos)
+                            {
+                                //Salir del ciclo
+                                bandInsertar = true;
+                                //Mensaje de error
+                                cout<<"ERROR: Ingrese los numeros de campos correspondiente."<<endl;
+                            }//si son iguales esta bien
+                            else if (numCampos==num_campos)
+                            {   //Ciclo que valida cada uno de los campo introducidos
+                                for(int i = 0; i < numCampos; i++)
+                                {   //Si son tipo entero tendran que ser digitos
+                                    if (arrayTipoDato[i]=="ENT"||arrayTipoDato[i]=="ent")
+                                    {   //Si llega un tipo entero, y no es numero levantara la bandera
+                                        if(!regex_match(CamposInsert[i],cDigito))
+                                        {
+                                            bandValidCampo = true;
+                                        }
+                                    }
+                                }
+
+
+                                //Si llego a haber algun algun error al validar los campos, no introducirlos
+                                if (bandValidCampo)
+                                {
+                                    //Salir del programa y mensaje
+                                    bandInsertar = true;
+                                    cout<<"\nERROR: Ingrese los datos correctos. Intente otra vez."<<endl;
+                                }
+                                else
+                                {
+                                    //Pasar los valores a un arreglo
+                                    for(int i = 0; i <numCampos; i++)
+                                    {
+                                        arrayExitoso[campoExitoso] = CamposInsert[i];
+                                        campoExitoso++;
+                                    }
+
+                                    //#################################################
+                                    //INSERTAR DATOS
+                                    //#################################################
+                                    //Variable de escritura
+                                    ofstream escribir;
+
+                                    //Los permisos para escribir
+                                    escribir.open(rutaDefinitiva,ios::out|ios::app);
+
+                                    //Si existe el archivo
+                                    if(escribir.is_open())
+                                    {
+                                        for (int i = 0; i < campoExitoso; i++)
+                                        {
+                                            //Si es divisible para dar salgo de linea
+                                            // i!=0 por que sera divible entre el numCampos, pero
+                                            // no se requiere saltar linea en esa posicion
+                                            if((i%numCampos==0) && (i!=0))
+                                            {
+                                                //Escribe en el archivo
+                                                escribir<<arrayExitoso[i]<<endl;
+                                            }
+                                            else
+                                            {
+                                                //Escribe en el archivo
+                                                escribir<<arrayExitoso[i] + " ";
+                                            }
+                                        }
+                                    }
+                                    escribir.close();
+
+                                    bandInsertar = true;
+
+                                    cout<<"\n-> Se ha insertado correctamente los valores en la tabla " + nombreBaseDatos + ". <-"<<endl;
+
+                                }
+                            }
                         }
+
                     }while(bandInsertar!=true);
 
                 }
                 //Cerrar la lectura
                 leerCampos.close();
+
+                //Limpiar arreglos
+                for(unsigned int i = 0; i < TAM; i++)
+                {
+                    arrayExitoso[i] = "";
+                    arrayleerCampos[i] = "";
+                    arrayNombresCampos[i] = "";
+                    arrayTipoDato[i] = "";
+                    CamposInsert[i] = "";
+                }
 
                 query = "";
 
