@@ -34,6 +34,10 @@ main()
     int campoExitoso = 0;
     bool bandInsertar = false;
     bool bandValidCampo = false;
+    int contadorInsertar = 0;
+    int adentro = 0;
+    int adentroAUX = 0;
+
     string save[TAM];
     string arrayleerCampos[TAM];
     string arrayNombresCampos[TAM];
@@ -83,11 +87,14 @@ main()
             {
                 bandInsertar = false;
                 bandValidCampo = false;
+                contadorInsertar = 0;
                 cCantidadCampos = 0;
                 num_campos = 0;
                 numCampos = 0;
                 cTipoDato = 0;
                 campoExitoso = 0;
+                adentroAUX = 0;
+                adentro = 0;
                 query = "";
 
                 //variable de lectura
@@ -179,6 +186,9 @@ main()
 
                         if(regex_match(query,cInsertarTablaDatos))
                         {
+                            //contador de inserciones (rows)
+                            contadorInsertar++;
+
                             //Quitarle los dos puntos
                             string query_corte = query.substr(0, query.find(":"));
 
@@ -259,6 +269,8 @@ main()
                         }
                         else if (regex_match(query, cInsertarTablaDatosFinal))
                         {
+                            //contador de inserciones (rows)
+                            contadorInsertar++;
                             //Quitarle los dos puntos
                             string query_corte = query.substr(0, query.find(";"));
 
@@ -347,22 +359,27 @@ main()
                                     //Si existe el archivo
                                     if(escribir.is_open())
                                     {
+                                        //Insertar los archivos en el archivo
+                                            do
+                                            {
+                                                for (int i = 0; i<numCampos; i++)
+                                                {
+                                                    escribir<<arrayExitoso[adentro]<<" ";
+                                                    adentro++;
+                                                }
+                                                escribir<<endl;
+                                                adentroAUX++;
+
+                                            }while(adentroAUX<contadorInsertar);
+/*
                                         for (int i = 0; i < campoExitoso; i++)
                                         {
                                             //Si es divisible para dar salgo de linea
                                             // i!=0 por que sera divible entre el numCampos, pero
                                             // no se requiere saltar linea en esa posicion
-                                            if((i%numCampos==0) && (i!=0))
-                                            {
-                                                //Escribe en el archivo
-                                                escribir<<arrayExitoso[i]<<endl;
-                                            }
-                                            else
-                                            {
-                                                //Escribe en el archivo
-                                                escribir<<arrayExitoso[i] + " ";
-                                            }
-                                        }
+                                            escribir<<arrayExitoso[i]<<" "<<arrayExitoso[i+2]<<" "<<arrayExitoso[i+3]<<endl;
+                                            i = i + (num_campos-1);
+                                        }*/
                                     }
                                     escribir.close();
 
@@ -372,6 +389,12 @@ main()
 
                                 }
                             }
+                        }
+                        else
+                        {
+                            //Salir del programa y mensaje
+                            bandInsertar = true;
+                            cout<<"\nERROR: Use la sintaxis correcta. Tecle -a para mostrar ayuda. Intente otra vez."<<endl;
                         }
 
                     }while(bandInsertar!=true);
