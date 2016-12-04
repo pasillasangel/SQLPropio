@@ -15,7 +15,7 @@
 
 using namespace std;
 
-regex cInsertarTabla("^(INSERTAR EN [A-Za-z](\\w)+)$");
+regex cInsertarTabla("^(INSERTAR EN [A-Za-z](\\w)+|insertar en [A-Za-z](\\w)+)$");
 regex cInsertarTablaDatos("^(([(A-zA-Z)|(0-9)]+,)+[(A-zA-Z)|(0-9)]+:)$");
 regex cInsertarTablaDatosFinal("^(([(A-zA-Z)|(0-9)]+,)+[(A-zA-Z)|(0-9)]+;)$");
 
@@ -78,7 +78,7 @@ main()
             rutaDefinitiva1 = rutabasedatos + nombreBaseDatos + "\\Atributos\\" + tempNombre + ".txt";
 
             //Buscar la tabla
-            if (!is_file(rutaDefinitiva))
+            if (!is_file(rutaDefinitiva1))
             {
                 cout<<"-> La tabla '" + tempNombre + "'que desea insertar no existe. Intente con otro nombre.<-"<<endl;
                 //SLEEEEP
@@ -371,15 +371,6 @@ main()
                                                 adentroAUX++;
 
                                             }while(adentroAUX<contadorInsertar);
-/*
-                                        for (int i = 0; i < campoExitoso; i++)
-                                        {
-                                            //Si es divisible para dar salgo de linea
-                                            // i!=0 por que sera divible entre el numCampos, pero
-                                            // no se requiere saltar linea en esa posicion
-                                            escribir<<arrayExitoso[i]<<" "<<arrayExitoso[i+2]<<" "<<arrayExitoso[i+3]<<endl;
-                                            i = i + (num_campos-1);
-                                        }*/
                                     }
                                     escribir.close();
 
