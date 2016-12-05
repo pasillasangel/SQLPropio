@@ -10,6 +10,7 @@ int main () {
 
  ficheroEntrada.open ("ficheroTexto.txt");
  getline(ficheroEntrada, frase);
+
  ficheroEntrada.close();
 
 

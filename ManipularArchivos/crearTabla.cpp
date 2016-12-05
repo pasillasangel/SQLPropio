@@ -30,6 +30,8 @@ regex cInsertarAtributoFinal("^([A-Za-z](\\w)+\\s(\\w)+;)$");
 regex cInsertarAtributoPrimario("^([A-Za-z](\\w)+\\s(\\w)+\\s(PRIMARIO|primario),)$");
 regex cInsertarAtributoFinalPrimario("^([A-Za-z](\\w)+\\s(\\w)+\\s(PRIMARIO|primario);)$");
 regex TipoDato("^(ent|ENT|var|VAR|)$");
+
+
 void Comando_Eliminar_Usuario(string ruta);
 bool is_file(string file);
 void Comando_Eliminar_Usuario(string ruta)
@@ -69,11 +71,11 @@ int main(int argc, char** argv){
     int cPalabra = 0;
     //Para saber que solo se ingreso una llave primaria
     bool bPrimario = false;
-
     //Si por alguna razon hubo error al ingresar campos, que elimine los archivos temp
     bool errorAtr = false;
     //Arreglo de string para almacenar los campos  (para que no se repitan) y su contador
     string arrayGA[TAM];
+    //Su propio contador
     int contadorGA = 0;
 
     //Almanecenara el TIPO DE DATO
@@ -96,7 +98,8 @@ int main(int argc, char** argv){
     {
         if(nombreBaseDatos=="")
         {
-            cout<<"Seleccione una base de datos.";
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
         }
         else
         {

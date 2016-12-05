@@ -1,56 +1,85 @@
+//############################################################################################################################
 //Librerias
-#include <cstdlib>
-#include <iostream>
-#include <fstream> //archivos
-#include <windows.h>
-#include <conio.h>
-#include <string.h>
-#include "stdio.h"
-#include <string>	//Strings
-#include <direct.h> //Directorios
-#include <dirent.h> //Directorios
-#include <cstring> //Validacion char
-#include <ctype.h> //Minusculas
-#include <regex> //Expresiones Regulares
-
+//############################################################################################################################
+#include <cstdlib>      //Comandos basicos del sistema
+#include <iostream>     //Comandos basicos
+#include <fstream>      //archivos
+#include <windows.h>    //Direcctorios
+#include <conio.h>      //Color del sistema
+#include <string.h>     //Cadenas
+#include "stdio.h"      //Comandos basicos (char)
+#include <string>	    //Strings
+#include <direct.h>     //Directorios
+#include <dirent.h>     //Directorios
+#include <cstring>      //Validacion char
+#include <ctype.h>      //Minusculas
+#include <regex>        //Expresiones Regulares
+#define TAM 50
+//############################################################################################################################
+//Palabras reservadas
+//############################################################################################################################
 using namespace std;
 
+//############################################################################################################################
 //CONSTANTES
+//############################################################################################################################
 const char FINCAD = char(0);
 const int MAXCAD = 20;
 const char SP = ' ';
 int mensajeInicio = 0;
 
+//############################################################################################################################
 //Expresiones regulares
+//############################################################################################################################
 regex cSalir("^(salir|SALIR)$");
 regex cLimpiar("^(-l)$");
 regex cComando("^(-com)$");
 regex cAyuda("^(-a)$");
-
+//--
 regex cCrearUsuario("^(CREAR USUARIO|crear usuario)$");
 regex cEliminarUsuarios("^(eliminar usuario|ELIMINAR USUARIO)$");
 regex cMostrarUsuariosAdmin("^(mostrar usuarios administradores|MOSTRAR USUARIOS ADMINISTRADORES)$");
 regex cMostrarUsuariosComunes("^(mostrar usuarios comunes|MOSTRAR USUARIOS COMUNES)$");
 regex cUsuario("^(usuario|USUARIO)$");
 regex cCerrar("^(cerrar|CERRAR)$");
-
+//--
 regex cCrearBaseDatos("^(crear basedatos\\s[A-Za-z](\\w)+|CREAR BASEDATOS\\s[A-Za-z](\\w)+)$");
 regex cUsarBaseDatos("^(usar\\s[A-Za-z](\\w)+|USAR\\s[A-Za-z](\\w)+)$");
 regex cMostrarBaseDatos("^(mostrar basedatos|MOSTRAR BASEDATOS)$");
 regex cEliminarBaseDatos("^(eliminar basedatos\\s[A-Za-z](\\w)+|ELIMINAR BASEDATOS\\s[A-Za-z](\\w)+)$");
 regex cRetirarBaseDatos("^(retirar basedatos|RETIRAR BASEDATOS)$");
-
+//--
 regex cCrearTabla("^(crear tabla\\s[A-Za-z](\\w)+|CREAR TABLA\\s[A-Za-z](\\w)+)$");
 regex cEliminarTabla("^(eliminar tabla\\s[A-Za-z](\\w)+|ELIMINAR TABLA\\s[A-Za-z](\\w)+)$");
 regex cMostrarTablas("^(mostrar tablas|MOSTRAR TABLAS)$");
-//TIPOS
+//--
+regex cSeleccionarTabla("^(S \\* DESDE [A-Za-z](\\w)+|s \\* desde [A-Za-z](\\w)+)$");
+regex cExplicarTabla("^(EXPLICAR [A-Za-z](\\w)+|explicar [A-Za-z](\\w)+)$");
+//--
+regex cInsertarAtributo("^([A-Za-z](\\w)+\\s(\\w)+,)$");
+regex cInsertarAtributoFinal("^([A-Za-z](\\w)+\\s(\\w)+;)$");
+regex cInsertarAtributoPrimario("^([A-Za-z](\\w)+\\s(\\w)+\\s(PRIMARIO|primario),)$");
+regex cInsertarAtributoFinalPrimario("^([A-Za-z](\\w)+\\s(\\w)+\\s(PRIMARIO|primario);)$");
+regex TipoDato("^(ent|ENT|var|VAR|)$");
+//--
+regex cInsertarTabla("^(INSERTAR EN [A-Za-z](\\w)+|insertar en [A-Za-z](\\w)+)$");
+regex cInsertarTablaDatos("^(([(A-zA-Z)|(0-9)]+,)+[(A-zA-Z)|(0-9)]+:)$");
+regex cInsertarTablaDatosFinal("^(([(A-zA-Z)|(0-9)]+,)+[(A-zA-Z)|(0-9)]+;)$");
+regex cDigito("^([-|+]?[0-9]+)$");
+regex cComa("^(\\w+,)$");
+
+//############################################################################################################################
+//Definiendo estructura
+//############################################################################################################################
 typedef char TCadena[MAXCAD+1]; // MAXCAD caracteres + FINCAD
 struct Persona_R
 {
 	TCadena PASS;
 };
 
+//############################################################################################################################
 //Instancias de los metodos principales
+//############################################################################################################################
 void pausa();
 void pausaSinMensaje();
 void gotoxy(int x, int y);
@@ -58,14 +87,19 @@ void pantallaPrincipal();
 void iniciarSesionUsuario();
 void iniciarSesionAdmin();
 
+//############################################################################################################################
 // CABECERA DE PROCEDIMIENTOS Y FUNCIONES
+//############################################################################################################################
 void finalizar_programa();
 void borrar_pantalla();
 void Ingresar_PASS(Persona_R &p);
 void confirmar_PASS(Persona_R &p);
-
+//##########################################
 // Algoritmos de Manejo de Ficheros de Texto
+//##########################################
 //Usuario Comun
+//##########################################
+//##########################################
 void insertarPersonaTXT(TCadena nombreFichero, Persona_R p);
 void EscribePersonaFicheroTXT(ofstream &fichero, Persona_R p);
 void verificar_existencia_de_usuario(TCadena nombreFichero);
@@ -73,6 +107,8 @@ void verificar_usuario_contrasena(TCadena nombreFichero,Persona_R &password);
 void PrincipalComun(TCadena nombreFichero);
 
 //Usuario Administrador
+//##########################################
+//##########################################
 void insertarPersonaTXTADMIN(TCadena nombreFichero, Persona_R p);
 void EscribePersonaFicheroTXTADMIN(ofstream &fichero, Persona_R p);
 void verificar_existencia_de_usuarioADMIN(TCadena nombreFichero);
@@ -80,6 +116,7 @@ void verificar_usuario_contrasenaADMIN(TCadena nombreFichero,Persona_R &password
 void PrincipalADMIN(TCadena nombreFichero);
 
 //Comandos
+//##########################################
 void Comando_Crear_Usuarios();
 void Comando_Ayuda();
 void Comando_Comandos();
@@ -93,14 +130,20 @@ bool Buscar_Bd(string dir);
 bool is_file(string file);
 void Comando_Mostrar_Tablas(string dir);
 
+//##########################################
 //Metodo principal
+//##########################################
 int main()
 {
 	//Color fondo: de Azul y Amarillo
 	system("color 0E");
 
+    //##########################################
 	//Variables
+	//##########################################
+	//Opcion
 	char opcion;
+	//Opcion
 	bool bandera = false;
 
 	do
@@ -110,6 +153,9 @@ int main()
 		//Limpiar variables
 		cin.clear();
 
+        //############################################################################################################################
+        //Imprimiendo mesanej personalizado
+        //############################################################################################################################
 		gotoxy(82,1);cout<<"BASE DE DATOS";
 		gotoxy(80,2);cout<<"----------------";
 		gotoxy(22,2);cout<<"              NMMMMMMMMMM";
@@ -132,7 +178,10 @@ int main()
 		gotoxy(10,20);cout<<"2.- Iniciar Sesion como cuenta de USUARIO";
 		gotoxy(10,21);cout<<"3.- Salir";
 
+		//############################################################################################################################
 		//Crear la carpeta contenedora
+		//Con carpetas, archivos y usuarios por defecto
+		//############################################################################################################################
 		string directorio = "c:/BaseDeDatos/";
 		if (mkdir(directorio.c_str()) == 0)
 		{
@@ -145,6 +194,9 @@ int main()
 			mkdir("c:/BaseDeDatos/Usuarios/Admin");
 			mkdir("c:/BaseDeDatos/Usuarios/Comunes");
 			mkdir("c:/BaseDeDatos/BD");
+			mkdir("c:/BaseDeDatos/BD/Ejemplo1");
+			mkdir("c:/BaseDeDatos/BD/Ejemplo1/Tablas");
+			mkdir("c:/BaseDeDatos/BD/Ejemplo1/Atributos");
 
 			//Creacion de el usuario angel
 			ofstream usuarioRoot;
@@ -157,6 +209,47 @@ int main()
 			usuarioChipres.open ("c:/BaseDeDatos/Usuarios/Admin/chipres");
 			usuarioChipres << "chipres";
 			usuarioChipres.close();
+
+            //Creacion la tabla ejemplo 1
+            ofstream ejemploTabla1;
+            ejemploTabla1.open ("c:/BaseDeDatos/BD/Ejemplo2/Tablas/Alumnos.txt");
+            ejemploTabla1 << "NumControl ent PRINCIPAL" << endl;
+            ejemploTabla1 << "Nombre var NO" << endl;
+            ejemploTabla1 << "ApellidoP var NO"<< endl;
+            ejemploTabla1 << "ApellidpM var NO"<<endl;
+            ejemploTabla1 << "Semestre ent NO" <<endl;
+            ejemploTabla1 << "Carrera var NO" << endl;
+            ejemploTabla1.close();
+
+            //Agregando datos a la tabla 1
+            ofstream ejemploTabla1Archivo;
+            ejemploTabla1Archivo.open ("c:/BaseDeDatos/Usuarios/Alumnos");
+            ejemploTabla1Archivo << "14210475 Ana Chipres Castellanos 6 ISC" << endl;
+            ejemploTabla1Archivo << "14210423 Angel Pasillas Luis 6 ISC" << endl;
+            ejemploTabla1Archivo << "14210434 Maria Castellanos Chipres 7 ISC" << endl;
+            ejemploTabla1Archivo << "14210432 Miguel Luis Pasillas 7 ISC" << endl;
+            ejemploTabla1Archivo.close();
+
+                //Creacion la tabla ejemplo 1
+            ofstream ejemploTabla2;
+            ejemploTabla2.open ("c:/BaseDeDatos/Usuarios/Materias.txt");
+            ejemploTabla2 << "Clave ent PRINCIPAL" << endl;
+            ejemploTabla2 << "Materia var NO" << endl;
+            ejemploTabla2 << "Dias var NO"<< endl;
+            ejemploTabla2 << "Semestre ent NO"<< endl;
+            ejemploTabla2 << "Carrera var NO"<<endl;
+            ejemploTabla2.close();
+
+            //Agregando datos a la tabla 1
+            ofstream ejemploTabla2Archivo;
+            ejemploTabla2Archivo.open ("c:/BaseDeDatos/Usuarios/Materias");
+            ejemploTabla2Archivo << "0971 AdmonBD L-V 6 ISC" << endl;
+            ejemploTabla2Archivo << "0973 Automatas L-V 6 ISC" << endl;
+            ejemploTabla2Archivo << "0975 Simulacion L-V 6 ISC" << endl;
+            ejemploTabla2Archivo << "0977 Redes L-V 6 ISC" << endl;
+            ejemploTabla2Archivo << "0979 Ing.Soft L-V 6 ISC" << endl;
+            ejemploTabla2Archivo << "0980 Arquitectura L-V 6 ISC" << endl;
+            ejemploTabla2Archivo.close();
 
 		}
 
@@ -564,11 +657,61 @@ void PrincipalComun(TCadena nombreFichero)
 
 void PrincipalADMIN(TCadena nombreFichero)
 {
+    //######
+    //Crear tabla
+    //######
+    //Para salir del ciclo de ingrsar 'campos'
+    bool bandera = false;
+    //Para saber cuando se repitio un campo
+    bool repetir = false;
+    //Para contar cada palabra y tomar solo TIPO DE DATO y validarlo
+    int cPalabra = 0;
+    //Para saber que solo se ingreso una llave primaria
+    bool bPrimario = false;
+    //Si por alguna razon hubo error al ingresar campos, que elimine los archivos temp
+    bool errorAtr = false;
+    //Arreglo de string para almacenar los campos  (para que no se repitan) y su contador
+    string arrayGA[TAM];
+    //Su propio contador
+    int contadorGA = 0;
+
+    //Almanecenara el TIPO DE DATO
+    string GetTP = "";
+
+    //Almanecenara todo la instruccion
+    string query = "";
+
+
+    //Explicar tabla
+    int cCantidadCampos = 0;
+    int numCampos = 0;
+    int adentroAUX = 0;
+    int adentro = 0;
+    string save[TAM];
+    string arrayleerCampos[TAM];
+
+    int num_campos = 0;
+    int cTipoDato = 0;
+    int campoExitoso = 0;
+    string arrayTipoDato[TAM];
+    string arrayNombresCampos[TAM];
+
+    //Insertar
+    bool bandInsertar = false;
+    bool bandValidCampo = false;
+    int contadorInsertar = 0;
+    string CamposInsert[TAM];
+    string arrayExitoso[TAM];
+    string axuCampos = "";
+
+
+
     string nombreBaseDatos = "";
     //string rutabasedatos = "c:/BaseDeDatos/BD/";
     string rutabasedatos = "c:\\BaseDeDatos\\BD\\";
     string tempNombre = "";
     string rutaDefinitiva = "";
+    string rutaDefinitiva1 = "";
     string nombreTabla = "";
 	bool salida = false;
 	char desicion;
@@ -590,7 +733,7 @@ void PrincipalADMIN(TCadena nombreFichero)
 			cout <<""<<endl;
 			cout <<""<<endl;
 			cout<<"Bienvenido a la Base de Datos."<<endl;
-			cout<<"Te haz conectado con la cuenta de: "; puts(nombreFichero);
+			cout<<"Te haz conectado con la cuenta con privilegios de: "; puts(nombreFichero);
 			cout<<"Version de la Base de Datos: 1.0.1"<<endl;
 			cout<<"Creada por Ana Maria Chipres Castellanos y Miguel Angel Pasillas Luis. <c> 2016"<<endl;
 
@@ -693,7 +836,13 @@ void PrincipalADMIN(TCadena nombreFichero)
             }
             else
             {
+                //Creacion de las tablas
                 mkdir(rutaDefinitiva.c_str());
+                rutaDefinitiva = rutabasedatos + tempNombre + "\\Atributos";
+                mkdir(rutaDefinitiva.c_str());
+                rutaDefinitiva = rutabasedatos + tempNombre + "\\Tablas";
+                mkdir(rutaDefinitiva.c_str());
+
                 cout<<"-> Creada CORRECTAMENTE la base de datos '"<< tempNombre <<"' <-"<<endl;
             }
         }
@@ -736,32 +885,330 @@ void PrincipalADMIN(TCadena nombreFichero)
         }
         else if (regex_match(consulta, cCrearTabla))
         {
-            if (nombreBaseDatos=="")
+            if(nombreBaseDatos=="")
             {
-                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
-                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
+                    cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+                    cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
             }
             else
             {
                 istringstream isstream(consulta);
-                while(!isstream.eof()){
+                while(!isstream.eof())
+                {
                     string tempStr;
                     isstream >> tempStr;
                     tempNombre = tempStr;
                 }
-                nombreTabla = tempNombre;
-                rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\" + tempNombre;
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\Tablas\\" + tempNombre;
+                cout<<"\n";
 
+                //CREAR TABLA
                 if (is_file(rutaDefinitiva))
                 {
                     cout<<"-> La tabla '" + tempNombre + "'que desea crear ya existe. Intente con otro nombre.<-"<<endl;
-
+                    //SLEEEEP
                 }
                 else
                 {
+                    bandera = false;
+                    repetir = false;
+                    bPrimario = false;
+                    contadorGA = 0;
+                    errorAtr = false;
+                    query = "";
+
+                    //Creacion de la tabla
                     ofstream fs(rutaDefinitiva);
-                    cout<<"-> Tabla '" + tempNombre + "' creada correctamente."<<endl;
+                    //Cambiando la direccion
+                    rutaDefinitiva1 = rutabasedatos + nombreBaseDatos + "\\Atributos\\" + tempNombre + ".txt";
+                    //Creacion de la variable
+                    ofstream atributos;
+                    //Creacion de la variable
+                    atributos.open(rutaDefinitiva1,ios::out|ios::app);
+                    if(atributos.is_open())
+                    {
+                        do
+                        {
+                            //contador de palabra a 0
+                            cPalabra = 0;
+
+                            cout<<"\t->";
+                            getline(cin, query, '\n');
+                            if (regex_match(query,cInsertarAtributoFinalPrimario))
+                            {
+                                if (bPrimario)
+                                {
+                                    errorAtr = true;
+                                    bandera = true;
+                                    cout<<" -> Error: Ya ingreso un valor primario. No puede tener dos campos primarios una tabla.";
+                                }
+                                else
+                                {
+                                    //para saber cuando se ingreso un valor primario
+                                    bPrimario = true;
+
+                                    //Quitarle la coma
+                                    string completo1 = query.substr(0, query.find(";"));
+                                    string GetAtributo1 = completo1.substr(0, completo1.find(" "));
+                                    istringstream coma1(completo1);
+                                    while(!coma1.eof())
+                                    {
+                                        string tempStr;
+                                        coma1 >> tempStr;
+                                        if(cPalabra==1)
+                                        {
+                                            GetTP = tempStr;
+                                        }
+                                        cPalabra++;
+                                    }
+
+                                    if(regex_match(GetTP,TipoDato))
+                                    {
+                                        for(unsigned int conta = 0; conta < TAM; conta++)
+                                        {
+                                            if(arrayGA[conta]==GetAtributo1)
+                                            {
+                                                //Si es que encontro un campo igual, repetir se ponga true
+                                                repetir = true;
+                                            }
+                                        }
+
+                                        if(repetir)
+                                        {
+                                            errorAtr = true;
+                                            bandera = true;
+                                            cout<<"-> Error: El atributo '" + GetAtributo1 + "' se ha repetido. Intente otra vez.<-"<<endl;
+                                        }
+                                        else
+                                        {
+                                            //Agregamos el atributo al array, para que no se vuelva elegir
+                                            arrayGA[contadorGA] = GetAtributo1;
+
+                                            //Aumentar el contador de Array de Atributos
+                                            contadorGA++;
+
+                                            //GetAtributo - Nombre Atributo
+                                            //TP - Tipo Datos
+                                            atributos<<GetAtributo1<<" "<<GetTP<<" Primario"<<endl;
+                                            //Salir del programa
+                                            bandera = true;
+
+                                            cout<<" -> La tabla '" + tempNombre +"' ha sido creada correctamente. <- "<<endl;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        errorAtr = true;
+                                        bandera=true;
+                                        cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <- "<<endl;
+                                    }
+                                }
+                            }
+                            else if (regex_match(query,cInsertarAtributoPrimario))
+                            {
+                                if (bPrimario)
+                                {
+                                    errorAtr = true;
+                                    bandera = true;
+                                    cout<<" -> Error: Ya ingreso un valor primario. No puede tener dos campos primarios una tabla.";
+                                }
+                                else
+                                {
+                                    //para saber cuando se ingreso un valor primario
+                                    bPrimario = true;
+                                    //Quitarle la coma
+                                    string completo = query.substr(0, query.find(","));
+                                    string GetAtributo = completo.substr(0, completo.find(" "));
+                                    istringstream coma(completo);
+                                    while(!coma.eof())
+                                    {
+                                        string tempStr;
+                                        coma >> tempStr;
+                                        if(cPalabra==1)
+                                        {
+                                            GetTP = tempStr;
+                                        }
+                                        cPalabra++;
+                                    }
+                                    if(regex_match(GetTP,TipoDato))
+                                    {
+                                        for(unsigned int conta = 0; conta < TAM; conta++)
+                                        {
+                                            if(arrayGA[conta]==GetAtributo)
+                                            {
+                                                //Si es que encontro un campo igual, repetir se ponga true
+                                                repetir = true;
+                                            }
+                                        }
+
+                                        if(repetir)
+                                        {
+                                            errorAtr = true;
+                                            bandera = true;
+                                            cout<<"-> Error: El atributo '" + GetAtributo + "' se ha repetido. Intente otra vez.<-"<<endl;
+                                        }
+                                        else
+                                        {
+                                            //Agregamos el atributo al array, para que no se vuelva elegir
+                                            arrayGA[contadorGA] = GetAtributo;
+
+                                            //Aumentar el contador de Array de Atributos
+                                            contadorGA++;
+
+                                            //GetAtributo - Nombre Atributo
+                                            //TP - Tipo Datos
+                                            atributos<<GetAtributo<<" "<<GetTP<<" Primario"<<endl;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        errorAtr = true;
+                                        bandera=true;
+                                        cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <-"<<endl;
+                                    }
+                                }
+                            }
+                            else if(regex_match(query, cInsertarAtributoFinal))
+                            {
+                                //Quitarle la coma
+                                string completo1 = query.substr(0, query.find(";"));
+                                string GetAtributo1 = completo1.substr(0, completo1.find(" "));
+                                istringstream coma1(completo1);
+                                while(!coma1.eof())
+                                {
+                                    string tempStr;
+                                    coma1 >> tempStr;
+                                    GetTP = tempStr;
+                                }
+
+                                if(regex_match(GetTP,TipoDato))
+                                {
+                                    for(unsigned int conta = 0; conta < TAM; conta++)
+                                    {
+                                        if(arrayGA[conta]==GetAtributo1)
+                                        {
+                                            //Si es que encontro un campo igual, repetir se ponga true
+                                            repetir = true;
+                                        }
+                                    }
+
+                                    if(repetir)
+                                    {
+                                        errorAtr = true;
+                                        bandera = true;
+                                        cout<<"-> Error: El atributo '" + GetAtributo1 + "' se ha repetido. Intente otra vez.<-"<<endl;
+                                    }
+                                    else
+                                    {
+                                        //Agregamos el atributo al array, para que no se vuelva elegir
+                                        arrayGA[contadorGA] = GetAtributo1;
+
+                                        //Aumentar el contador de Array de Atributos
+                                        contadorGA++;
+
+                                        //GetAtributo - Nombre Atributo
+                                        //TP - Tipo Datos
+                                        atributos<<GetAtributo1<<" "<<GetTP<<" No"<<endl;
+                                        //Salir del programa
+                                        bandera = true;
+
+                                        cout<<" -> La tabla '" + tempNombre +"' ha sido creada correctamente. <- "<<endl;
+                                    }
+
+                                }
+                                else
+                                {
+                                    errorAtr = true;
+                                    bandera=true;
+                                    cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <- "<<endl;
+                                }
+                            }
+                            else if(regex_match(query,cInsertarAtributo))
+                            {
+                                //Quitarle la coma
+                                string completo = query.substr(0, query.find(","));
+                                string GetAtributo = completo.substr(0, completo.find(" "));
+                                istringstream coma(completo);
+                                while(!coma.eof())
+                                {
+                                    string tempStr;
+                                    coma >> tempStr;
+                                    GetTP = tempStr;
+                                }
+
+                                if(regex_match(GetTP,TipoDato))
+                                {
+                                    for(unsigned int conta = 0; conta < TAM; conta++)
+                                    {
+                                        if(arrayGA[conta]==GetAtributo)
+                                        {
+                                            //Si es que encontro un campo igual, repetir se ponga true
+                                            repetir = true;
+                                        }
+                                    }
+
+                                    if(repetir)
+                                    {
+                                        //Eliminar archivos
+                                        errorAtr = true;
+                                        bandera = true;
+                                        cout<<"-> Error: El atributo '" + GetAtributo + "' se ha repetido. Intente otra vez.<-"<<endl;
+                                    }
+                                    else
+                                    {
+                                        //Agregamos el atributo al array, para que no se vuelva elegir
+                                        arrayGA[contadorGA] = GetAtributo;
+
+                                        //Aumentar el contador de Array de Atributos
+                                        contadorGA++;
+
+                                        //GetAtributo - Nombre Atributo
+                                        //TP - Tipo Datos
+                                        atributos<<GetAtributo<<" "<<GetTP<<" No"<<endl;
+                                    }
+                                }
+                                else
+                                {
+                                    errorAtr = true;
+                                    bandera=true;
+                                    cout<<" -> Error: Ingrese un tipo de dato correcto. Intente de nuevo. <-"<<endl;
+                                }
+                            }
+                            else
+                            {
+                                //Eliminar archivos
+                                errorAtr = true;
+                                bandera = true;
+                                cout<<" -> Error: Revise su instruccion. Intente de nuevo. <-"<<endl;
+                            }
+                        }while(bandera!=true);
+
+                        atributos.close();
+                    }
+                    else
+                    {
+                        cout<<"-> Error al crear la tabla '" + tempNombre + "'. Intentelo de nuevo. <-"<<endl;
+                    }
                 }
+
+                //eliminar arhivos temporales por si llega a ver error
+                if (errorAtr)
+                {
+                    //tabla
+                    Comando_Eliminar_Usuario(rutaDefinitiva1);
+                    //atributos
+                    Comando_Eliminar_Usuario(rutaDefinitiva);
+                }
+
+                //Limpiando el arreglo
+                for (unsigned int conta = 0; conta < TAM; conta++)
+                {
+                    arrayGA[conta] = "";
+                }
+
+                query = "";
+
             }
         }
         else if(regex_match(consulta, cRetirarBaseDatos))
@@ -826,9 +1273,699 @@ void PrincipalADMIN(TCadena nombreFichero)
                     isstream >> tempStr;
                     tempNombre = tempStr;
                 }
-                rutaDefinitiva = rutabasedatos + nombreBaseDatos;
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\Tablas";
 
                 Comando_Mostrar_Tablas(rutaDefinitiva);
+            }
+        }
+        else if (regex_match(consulta, cExplicarTabla))
+        {
+            if(nombreBaseDatos=="")
+            {
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
+            }
+            else
+            {
+                //Cortar para obtener el nombre de la tabla
+                istringstream isstream(consulta);
+                while(!isstream.eof())
+                {
+                    string tempStr;
+                    isstream >> tempStr;
+                    tempNombre = tempStr;
+                }
+
+                //Tabla
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\Tablas\\" + tempNombre;
+                //Atributos
+                rutaDefinitiva1 = rutabasedatos + nombreBaseDatos + "\\Atributos\\" + tempNombre + ".txt";
+
+                //Buscar la tabla
+                if (!is_file(rutaDefinitiva1))
+                {
+                    cout<<"-> La tabla '" + tempNombre + "'que desea EXPLICAR no existe. Intente con otro nombre.<-"<<endl;
+                    //SLEEEEP
+                }
+                else
+                {
+                    cCantidadCampos = 0;
+                    numCampos = 0;
+                    adentroAUX = 0;
+                    adentro = 0;
+                    query = "";
+
+                    string variablez = "";
+                    int longQ = 0;
+
+                    //variable de lectura
+                    ifstream leerCampos;
+                    //Leer el archivo
+                    leerCampos.open(rutaDefinitiva1,ios::out|ios::in);
+
+                    //Abrir archivo (siempre se abrira y no habra error, porque si existe)
+                    if(leerCampos.is_open())
+                    {
+                        //######################################################
+                        //Contar el numero campos
+                        //######################################################
+
+                        //lectura adelantada
+                        leerCampos>>save[cCantidadCampos];
+                        while(!leerCampos.eof())
+                        {
+                            arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+                            cCantidadCampos++;
+                            leerCampos>>save[cCantidadCampos];
+
+                            //Es divisible de tres, entonces
+                            if((cCantidadCampos%3)==0)
+                            {
+                                numCampos++;
+                            }
+
+                        }
+                        //guardar el ultimo valor
+                        arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+
+                        //Para que no salga impar, y se haga par y se pueda dividir
+                        cCantidadCampos++;
+
+                        //###########################################
+                        //EXPLICAR CADA ATRIBUTO
+                        //###########################################
+                        cout<<endl;
+                        cout<<"|----------------------------------------------------|"<<endl;
+                        cout<<"|       CAMPO       |    TIPO    |       LLAVE       |"<<endl;
+                        cout<<"|----------------------------------------------------|"<<endl;
+                        //Insertar los archivos en el archivo
+                        do
+                        {
+                            for (int i = 0; i<3; i++)
+                            {
+                                variablez = save[adentro];
+                                longQ = variablez.length();
+                                if(longQ<=2)
+                                {
+                                    cout<<"        "<<save[adentro]<<"         ";
+                                }
+                                else if (longQ>2 && longQ<=6)
+                                {
+                                    cout<<"      "<<save[adentro]<<"       ";
+                                }
+                                else if (longQ>6 && longQ<10)
+                                {
+                                    cout<<"    "<<save[adentro]<<"    ";
+                                }
+                                else
+                                {
+                                    cout<<"    "<<save[adentro]<<"    ";
+                                }
+                                adentro++;
+                            }
+                            cout<<endl;
+                            adentroAUX++;
+
+                        }while(adentroAUX<numCampos);
+                        cout<<"|----------------------------------------------------|"<<endl;
+                    }
+                    //Cerrar la lectura
+                    leerCampos.close();
+
+                    //Limpiar arreglos
+                    for(unsigned int i = 0; i < TAM; i++)
+                    {
+                        arrayleerCampos[i] = "";
+                        save[i] = "";
+                    }
+
+                    query = "";
+
+                }
+            }
+        }
+        else if(regex_match(consulta,cInsertarTabla))
+        {
+            if(nombreBaseDatos=="")
+            {
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
+            }
+            else
+            {
+                //Cortar para obtener el nombre de la tabla
+                istringstream isstream(consulta);
+                while(!isstream.eof())
+                {
+                    string tempStr;
+                    isstream >> tempStr;
+                    tempNombre = tempStr;
+                }
+
+                //Tabla
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\Tablas\\" + tempNombre;
+                //Atributos
+                rutaDefinitiva1 = rutabasedatos + nombreBaseDatos + "\\Atributos\\" + tempNombre + ".txt";
+
+                //Buscar la tabla
+                if (!is_file(rutaDefinitiva1))
+                {
+                    cout<<"-> La tabla '" + tempNombre + "'que desea insertar no existe. Intente con otro nombre.<-"<<endl;
+                    //SLEEEEP
+                }
+                else
+                {
+                    bandInsertar = false;
+                    bandValidCampo = false;
+                    contadorInsertar = 0;
+                    cCantidadCampos = 0;
+                    num_campos = 0;
+                    numCampos = 0;
+                    cTipoDato = 0;
+                    campoExitoso = 0;
+                    adentroAUX = 0;
+                    adentro = 0;
+                    query = "";
+
+                    //variable de lectura
+                    ifstream leerCampos;
+                    //Leer el archivo
+                    leerCampos.open(rutaDefinitiva1,ios::out|ios::in);
+
+                    //Abrir archivo (siempre se abrira y no habra error, porque si existe)
+                    if(leerCampos.is_open())
+                    {
+                        //######################################################
+                        //Contar el numero campos
+                        //######################################################
+
+                        //lectura adelantada
+                        leerCampos>>save[cCantidadCampos];
+                        while(!leerCampos.eof())
+                        {
+                            arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+                            cCantidadCampos++;
+                            leerCampos>>save[cCantidadCampos];
+                        }
+                        //guardar el ultimo valor
+                        arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+
+                        //Para que no salga impar, y se haga par y se pueda dividir
+                        cCantidadCampos++;
+
+                        //Numero de campos que contiene la tabla
+                        num_campos = cCantidadCampos / 3;
+
+                        //######################################################
+                        //Conocer los tipos de de datos (Inicia en 1)
+                        //######################################################
+                        for(int i = 1; i<(cCantidadCampos-1); i=i+3)
+                        {
+                            arrayTipoDato[cTipoDato]=arrayleerCampos[i];
+                            cTipoDato++;
+                        }
+                        //Volver a cponer el contador en cero
+                        cTipoDato = 0;
+
+                        //######################################################
+                        //Conocer los nombres de los campos
+                        //######################################################
+                        for(int i = 0; i<(cCantidadCampos-1); i=i+3)
+                        {
+                            arrayNombresCampos[cTipoDato]=arrayleerCampos[i];
+                            cTipoDato++;
+                        }
+
+                        //Imprimiendo los CAMPOS de la tabla
+                        cout<<"\t-------> ";
+                        for(int i = 0; i<cTipoDato; i++)
+                        {
+                            if(i==(cTipoDato-1))
+                            {
+                                cout<<arrayNombresCampos[i]+".";
+                            }
+                            else
+                            {
+                                cout<<arrayNombresCampos[i]+", ";
+                            }
+                        }
+                        cout<<"\n";
+                        //Imprimiendo los TIPOS DE DATOS de los campos
+                        cout<<"\t-------> ";
+                        for(int i = 0; i<cTipoDato; i++)
+                        {
+                            if(i==(cTipoDato-1))
+                            {
+                                cout<<arrayTipoDato[i]+".";
+                            }
+                            else
+                            {
+                                cout<<arrayTipoDato[i]+", ";
+                            }
+                        }
+
+                        do
+                        {
+                            cout<<"\n\t->";
+                            getline(cin, query, '\n');
+
+                            //Numero de campos regresa a cero
+                            numCampos = 0;
+
+                            if(regex_match(query,cInsertarTablaDatos))
+                            {
+                                //contador de inserciones (rows)
+                                contadorInsertar++;
+
+                                //Quitarle los dos puntos
+                                string query_corte = query.substr(0, query.find(":"));
+
+                                //conocer la longitud del string
+                                int longitudQ = query_corte.length();
+
+                                //separar los campos introducirdos
+                                for(int i =0; i<longitudQ; i++)
+                                {
+                                    //Ingresar datos
+                                    axuCampos = axuCampos + query_corte[i];
+
+                                    //Encontrar la coma para separala
+                                    if(regex_match(axuCampos, cComa))
+                                    {
+                                        //Quitarle la coma
+                                        string ax = axuCampos.substr(0, axuCampos.find(","));
+
+                                        //Asignarle valor al arreglo
+                                        CamposInsert[numCampos] = ax;
+
+                                        //Aumentarle valor al campo
+                                        numCampos++;
+
+                                        //Limpiamos la variable, para ingresar otro campos
+                                        axuCampos = "";
+                                    }
+                                }
+
+                                //Ingresar el ultimo valor
+                                CamposInsert[numCampos] = axuCampos;
+
+                                //Aumentar el campo
+                                numCampos++;
+
+                                //Limpiar la variable auxiliar
+                                axuCampos = "";
+
+                                //Si son difirentes error, debera de dar igual si no esta mal
+                                if(numCampos!=num_campos)
+                                {
+                                    //Salir del ciclo
+                                    bandInsertar = true;
+                                    //Mensaje de error
+                                    cout<<"ERROR: Ingrese los numeros de campos correspondiente."<<endl;
+                                }//si son iguales esta bien
+                                else if (numCampos==num_campos)
+                                {   //Ciclo que valida cada uno de los campo introducidos
+                                    for(int i = 0; i < numCampos; i++)
+                                    {   //Si son tipo entero tendran que ser digitos
+                                        if (arrayTipoDato[i]=="ENT"||arrayTipoDato[i]=="ent")
+                                        {   //Si llega un tipo entero, y no es numero levantara la bandera
+                                            if(!regex_match(CamposInsert[i],cDigito))
+                                            {
+                                                bandValidCampo = true;
+                                            }
+                                        }
+                                    }
+
+
+                                    //Si llego a haber algun algun error al validar los campos, no introducirlos
+                                    if (bandValidCampo)
+                                    {
+                                        //Salir del programa y mensaje
+                                        bandInsertar = true;
+                                        cout<<"\nERROR: Ingrese los datos correctos. Intente otra vez."<<endl;
+                                    }
+                                    else
+                                    {
+                                        //Pasar los valores a un arreglo
+                                        for(int i = 0; i <numCampos; i++)
+                                        {
+                                            arrayExitoso[campoExitoso] = CamposInsert[i];
+                                            campoExitoso++;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (regex_match(query, cInsertarTablaDatosFinal))
+                            {
+                                //contador de inserciones (rows)
+                                contadorInsertar++;
+                                //Quitarle los dos puntos
+                                string query_corte = query.substr(0, query.find(";"));
+
+                                //conocer la longitud del string
+                                int longitudQ = query_corte.length();
+
+                                //separar los campos introducirdos
+                                for(int i =0; i<longitudQ; i++)
+                                {
+                                    //Ingresar datos
+                                    axuCampos = axuCampos + query_corte[i];
+
+                                    //Encontrar la coma para separala
+                                    if(regex_match(axuCampos, cComa))
+                                    {
+                                        //Quitarle la coma
+                                        string ax = axuCampos.substr(0, axuCampos.find(","));
+
+                                        //Asignarle valor al arreglo
+                                        CamposInsert[numCampos] = ax;
+
+                                        //Aumentarle valor al campo
+                                        numCampos++;
+
+                                        //Limpiamos la variable, para ingresar otro campos
+                                        axuCampos = "";
+                                    }
+                                }
+
+                                //Ingresar el ultimo valor
+                                CamposInsert[numCampos] = axuCampos;
+
+                                //Aumentar el campo
+                                numCampos++;
+
+                                //Limpiar la variable auxiliar
+                                axuCampos = "";
+
+                                //Si son difirentes error, debera de dar igual si no esta mal
+                                if(numCampos!=num_campos)
+                                {
+                                    //Salir del ciclo
+                                    bandInsertar = true;
+                                    //Mensaje de error
+                                    cout<<"ERROR: Ingrese los numeros de campos correspondiente."<<endl;
+                                }//si son iguales esta bien
+                                else if (numCampos==num_campos)
+                                {   //Ciclo que valida cada uno de los campo introducidos
+                                    for(int i = 0; i < numCampos; i++)
+                                    {   //Si son tipo entero tendran que ser digitos
+                                        if (arrayTipoDato[i]=="ENT"||arrayTipoDato[i]=="ent")
+                                        {   //Si llega un tipo entero, y no es numero levantara la bandera
+                                            if(!regex_match(CamposInsert[i],cDigito))
+                                            {
+                                                bandValidCampo = true;
+                                            }
+                                        }
+                                    }
+
+
+                                    //Si llego a haber algun algun error al validar los campos, no introducirlos
+                                    if (bandValidCampo)
+                                    {
+                                        //Salir del programa y mensaje
+                                        bandInsertar = true;
+                                        cout<<"\nERROR: Ingrese los datos correctos. Intente otra vez."<<endl;
+                                    }
+                                    else
+                                    {
+                                        //Pasar los valores a un arreglo
+                                        for(int i = 0; i <numCampos; i++)
+                                        {
+                                            arrayExitoso[campoExitoso] = CamposInsert[i];
+                                            campoExitoso++;
+                                        }
+
+                                        //#################################################
+                                        //INSERTAR DATOS
+                                        //#################################################
+                                        //Variable de escritura
+                                        ofstream escribir;
+
+                                        //Los permisos para escribir
+                                        escribir.open(rutaDefinitiva,ios::out|ios::app);
+
+                                        //Si existe el archivo
+                                        if(escribir.is_open())
+                                        {
+                                            //Insertar los archivos en el archivo
+                                                do
+                                                {
+                                                    for (int i = 0; i<numCampos; i++)
+                                                    {
+                                                        escribir<<arrayExitoso[adentro]<<" ";
+                                                        adentro++;
+                                                    }
+                                                    escribir<<endl;
+                                                    adentroAUX++;
+
+                                                }while(adentroAUX<contadorInsertar);
+                                        }
+                                        escribir.close();
+
+                                        bandInsertar = true;
+
+                                        cout<<"\n-> Se ha insertado correctamente los valores en la tabla " + nombreBaseDatos + ". <-"<<endl;
+
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //Salir del programa y mensaje
+                                bandInsertar = true;
+                                cout<<"\nERROR: Use la sintaxis correcta. Tecle -a para mostrar ayuda. Intente otra vez."<<endl;
+                            }
+
+                        }while(bandInsertar!=true);
+
+                    }
+                    //Cerrar la lectura
+                    leerCampos.close();
+
+                    //Limpiar arreglos
+                    for(unsigned int i = 0; i < TAM; i++)
+                    {
+                        arrayExitoso[i] = "";
+                        arrayleerCampos[i] = "";
+                        arrayNombresCampos[i] = "";
+                        arrayTipoDato[i] = "";
+                        CamposInsert[i] = "";
+                        save[i] ="";
+                    }
+
+                    query = "";
+
+                }
+            }
+        }
+        else if(regex_match(consulta, cSeleccionarTabla))
+        {
+            if(nombreBaseDatos=="")
+            {
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
+            }
+            else
+            {
+                //Cortar para obtener el nombre de la tabla
+                istringstream isstream(consulta);
+                while(!isstream.eof())
+                {
+                    string tempStr;
+                    isstream >> tempStr;
+                    tempNombre = tempStr;
+                }
+
+                //Tabla
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\Tablas\\" + tempNombre;
+                //Atributos
+                rutaDefinitiva1 = rutabasedatos + nombreBaseDatos + "\\Atributos\\" + tempNombre + ".txt";
+
+                //Buscar la tabla
+                if (!is_file(rutaDefinitiva1))
+                {
+                    cout<<"-> La tabla '" + tempNombre + "'que desea insertar no existe. Intente con otro nombre.<-"<<endl;
+                    //SLEEEEP
+                }
+                else
+                {
+                    cCantidadCampos = 0;
+                    numCampos = 0;
+                    cTipoDato = 0;
+                    adentroAUX = 0;
+                    adentro = 0;
+                    query = "";
+                    string variabley = "";
+                    int camposReales = 0;
+                    int longQ = 0;
+
+                    //variable de lectura
+                    ifstream leerCampos;
+                    //Leer el archivo
+                    leerCampos.open(rutaDefinitiva1,ios::out|ios::in);
+
+                    //Abrir archivo (siempre se abrira y no habra error, porque si existe)
+                    if(leerCampos.is_open())
+                    {
+                        //######################################################
+                        //Contar el numero campos
+                        //######################################################
+
+                        //lectura adelantada
+                        leerCampos>>save[cCantidadCampos];
+                        while(!leerCampos.eof())
+                        {
+                            arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+                            cCantidadCampos++;
+                            leerCampos>>save[cCantidadCampos];
+                        }
+
+                        //Contar los atriburoa
+                        while(!leerCampos.eof())
+                        {
+                            getline(leerCampos,variabley);
+                        }
+
+                        //guardar el ultimo valor
+                        arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+
+                        //Para que no salga impar, y se haga par y se pueda dividir
+                        cCantidadCampos++;
+
+                        //Contando y leyendo los campos
+                        getline(leerCampos,variabley);
+                        istringstream isstream(variabley);
+                        while(!isstream.eof())
+                        {
+                            string tempStr;
+                            isstream >> tempStr;
+                            //tempNombre = tempStr;
+                            camposReales++;
+                        }
+
+                        //######################################################
+                        //Conocer los nombres de los campos
+                        //######################################################
+                        for(int i = 0; i<(cCantidadCampos-1); i=i+3)
+                        {
+                            arrayNombresCampos[cTipoDato]=arrayleerCampos[i];
+                            cTipoDato++;
+
+                        }
+                        //Imprimiendo los CAMPOS de la tabla
+                        cout<<"-----------------------------------------------------------------------------------------------"<<endl;
+                        for(int i = 0; i<=cTipoDato; i++)
+                        {
+                            variabley = arrayNombresCampos[i];
+                            longQ = variabley.length();
+                            if(longQ<=2)
+                            {
+                                cout<<"     "<<arrayNombresCampos[i]<<"      ";
+                            }
+                            else if (longQ>2 && longQ<=6)
+                            {
+                                cout<<"     "<<arrayNombresCampos[i]<<"     ";
+                            }
+                            else if (longQ>6 && longQ<10)
+                            {
+                                cout<<"    "<<arrayNombresCampos[i]<<"    ";
+                            }
+                            else
+                            {
+                                cout<<"    "<<arrayNombresCampos[i]<<"    ";
+                            }
+                        }
+                        cout<<"\n--------------------------------------------------------------------------------------------"<<endl;
+
+
+                        //Limpiar datos
+                        for(unsigned int i = 0; i < TAM; i++)
+                        {
+                            arrayleerCampos[i] = "";
+                            arrayNombresCampos[i] = "";
+                            save[i] ="";
+                        }
+                        cCantidadCampos = 0;
+                        variabley = "";
+
+
+                        //Cerrar la lectura
+                        leerCampos.close();
+
+                        //variable de lectura
+                        ifstream leerDatos;
+                        //Leer el archivo
+                        leerDatos.open(rutaDefinitiva,ios::out|ios::in);
+
+
+                        if(leerDatos.is_open())
+                        {
+
+                            //lectura adelantada
+                            leerDatos>>save[cCantidadCampos];
+                            while(!leerDatos.eof())
+                            {
+                                arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+                                cCantidadCampos++;
+                                leerDatos>>save[cCantidadCampos];
+
+                                //Es divisible de tres, entonces
+                                if((cCantidadCampos%3)==0)
+                                {
+                                    numCampos++;
+                                }
+                            }
+
+                            //guardar el ultimo valor
+                            arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+
+                            //Para que no salga impar, y se haga par y se pueda dividir
+                            cCantidadCampos++;
+
+                            do
+                            {
+                                for (int i = 0; i<cTipoDato; i++)
+                                {
+                                    variabley = save[adentro];
+                                    longQ = variabley.length();
+                                    if(longQ<=2)
+                                    {
+                                        cout<<"        "<<save[adentro]<<"         ";
+                                    }
+                                    else if (longQ>2 && longQ<=6)
+                                    {
+                                        cout<<"      "<<save[adentro]<<"       ";
+                                    }
+                                    else if (longQ>6 && longQ<10)
+                                    {
+                                        cout<<"    "<<save[adentro]<<"    ";
+                                    }
+                                    else
+                                    {
+                                        cout<<"    "<<save[adentro]<<"    ";
+                                    }
+                                    adentro++;
+                                }
+                                cout<<endl;
+                                adentroAUX++;
+
+                            }while(adentroAUX<numCampos);
+                            cout<<"--------------------------------------------------------------------------------------------"<<endl;
+
+                        }
+
+
+                    }
+
+                    //Limpiar arreglos
+                    for(unsigned int i = 0; i < TAM; i++)
+                    {
+                        arrayleerCampos[i] = "";
+                        arrayNombresCampos[i] = "";
+                        save[i] ="";
+                    }
+
+                }
             }
         }
         else if(consulta=="")
@@ -981,7 +2118,7 @@ void Comando_Comandos()
     cout<<"USAR nombre_bd"<<endl;
     cout<<"\t\tUso de una de las bases de datos ya creada previamente."<<endl;
     cout<<"RETIRAR BASEDATOS"<<endl;
-    cout<<"\t\Permite dejar de usar la base de datos que esta seleccionada actualmente."<<endl;
+    cout<<"\t\tPermite dejar de usar la base de datos que esta seleccionada actualmente."<<endl;
     cout<<"MOSTRAR BASEDATOS"<<endl;
     cout<<"\t\tMuestra todas las bases de datos existentes."<<endl;
     cout<<"ELIMINAR BASEDATOS nombre_bd"<<endl;
@@ -990,14 +2127,16 @@ void Comando_Comandos()
     cout<<"\t\t\tCOMANDOS DE TABLAS"<<endl;
     cout<<"CREAR TABLA nombre_tabla"<<endl;
     cout<<"\t\tPermite crear una tabla en una base de datos ya seleccionada."<<endl;
-    cout<<"\n\n";
-    cout<<"\t\t\tPROXIMANETE"<<endl;
-    cout<<"\tELIMINAR TABLA nombre_tabla"<<endl;
-    cout<<"\tPermite eliminar una tabla existen dentro de una base datos."<<endl;
-    cout<<"\tMOSTRAR TABLAS"<<endl;
-    cout<<"\tMuestra todoas las tablas que contiene la base de datos seleccionada."<<endl;
-    cout<<"\tEXPLICAR nombre_tabla"<<endl;
-    cout<<"\tMuestra todos los atributos de la tabla con sus respectivos tipos de datos."<<endl;
+    cout<<"ELIMINAR TABLA nombre_tabla"<<endl;
+    cout<<"\t\tPermite eliminar una tabla existen dentro de una base datos."<<endl;
+    cout<<"MOSTRAR TABLAS"<<endl;
+    cout<<"\t\tMuestra todoas las tablas que contiene la base de datos seleccionada."<<endl;
+    cout<<"EXPLICAR nombre_tabla"<<endl;
+    cout<<"\t\tMuestra todos los atributos de la tabla con sus respectivos tipos de datos."<<endl;
+    cout<<"INSERTAR EN nombre_tabla"<<endl;
+    cout<<"\tPermite insertar datos en la tabla seleccionada."<<endl;
+    cout<<"\S * DESDE nombre_tabla"<<endl;
+    cout<<"\tMuestra todos los datos de la tabla."<<endl;
 }
 
 void Comando_Mostrar_Usuarios_Admin()

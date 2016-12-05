@@ -59,7 +59,8 @@ main()
 
     if(nombreBaseDatos=="")
         {
-            cout<<"Seleccione una base de datos.";
+            cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+            cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
         }
         else
         {
@@ -134,7 +135,6 @@ main()
                         arrayTipoDato[cTipoDato]=arrayleerCampos[i];
                         cTipoDato++;
                     }
-
                     //Volver a cponer el contador en cero
                     cTipoDato = 0;
 
@@ -174,11 +174,10 @@ main()
                             cout<<arrayTipoDato[i]+", ";
                         }
                     }
-                    cout<<"\n";
 
                     do
                     {
-                        cout<<"\t->";
+                        cout<<"\n\t->";
                         getline(cin, query, '\n');
 
                         //Numero de campos regresa a cero
@@ -402,6 +401,7 @@ main()
                     arrayNombresCampos[i] = "";
                     arrayTipoDato[i] = "";
                     CamposInsert[i] = "";
+                    save[i] ="";
                 }
 
                 query = "";

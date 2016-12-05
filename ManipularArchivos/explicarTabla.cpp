@@ -16,12 +16,7 @@
 
 using namespace std;
 
-regex cInsertarTabla("^(INSERTAR EN [A-Za-z](\\w)+|insertar en [A-Za-z](\\w)+)$");
-regex cInsertarTablaDatos("^(([(A-zA-Z)|(0-9)]+,)+[(A-zA-Z)|(0-9)]+:)$");
-regex cInsertarTablaDatosFinal("^(([(A-zA-Z)|(0-9)]+,)+[(A-zA-Z)|(0-9)]+;)$");
-
-regex cDigito("^([-|+]?[0-9]+)$");
-regex cComa("^(\\w+,)$");
+regex cInsertarTabla("^(EXPLICAR [A-Za-z](\\w)+|explicar [A-Za-z](\\w)+)$");
 
 bool is_file(string file);
 
@@ -29,23 +24,12 @@ bool is_file(string file);
 main()
 {
     int cCantidadCampos = 0;
-    int cTipoDato = 0;
-    float num_campos = 0;
     int numCampos = 0;
-    int campoExitoso = 0;
-    bool bandInsertar = false;
-    bool bandValidCampo = false;
-    int contadorInsertar = 0;
     int adentro = 0;
     int adentroAUX = 0;
 
     string save[TAM];
     string arrayleerCampos[TAM];
-    string arrayNombresCampos[TAM];
-    string arrayTipoDato[TAM];
-    string CamposInsert[TAM];
-    string arrayExitoso[TAM];
-    string axuCampos = "";
     string query = "";
 
     string rutaDefinitiva;
@@ -58,9 +42,10 @@ main()
     cout<<"Ingrese Consulta -> ";
     getline(cin, consulta, '\n');
 
-    if(nombreBaseDatos=="")
+        if(nombreBaseDatos=="")
         {
-            cout<<"Seleccione una base de datos.";
+            cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+            cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
         }
         else
         {
@@ -86,14 +71,8 @@ main()
             }
             else
             {
-                bandInsertar = false;
-                bandValidCampo = false;
-                contadorInsertar = 0;
                 cCantidadCampos = 0;
-                num_campos = 0;
                 numCampos = 0;
-                cTipoDato = 0;
-                campoExitoso = 0;
                 adentroAUX = 0;
                 adentro = 0;
                 query = "";
@@ -121,12 +100,11 @@ main()
                         cCantidadCampos++;
                         leerCampos>>save[cCantidadCampos];
 
-                        //Esdivisible de tres, entonces
+                        //Es divisible de tres, entonces
                         if((cCantidadCampos%3)==0)
                         {
                             numCampos++;
                         }
-
 
                     }
                     //guardar el ultimo valor
@@ -142,7 +120,7 @@ main()
                     cout<<"|----------------------------------------------------|"<<endl;
                     cout<<"|       CAMPO       |    TIPO    |       LLAVE       |"<<endl;
                     cout<<"|----------------------------------------------------|"<<endl;
-                //Insertar los archivos en el archivo
+                    //Insertar los archivos en el archivo
                     do
                     {
                         for (int i = 0; i<3; i++)
@@ -171,9 +149,6 @@ main()
                         adentroAUX++;
 
                     }while(adentroAUX<numCampos);
-
-                    cout<<"\nadentroaux: "<<adentroAUX<<" - numCampos: "<<numCampos<<" - adentro: "<<adentro<<" - "<<endl;
-
                 }
                 //Cerrar la lectura
                 leerCampos.close();
@@ -181,11 +156,8 @@ main()
                 //Limpiar arreglos
                 for(unsigned int i = 0; i < TAM; i++)
                 {
-                    arrayExitoso[i] = "";
                     arrayleerCampos[i] = "";
-                    arrayNombresCampos[i] = "";
-                    arrayTipoDato[i] = "";
-                    CamposInsert[i] = "";
+                    save[i] = "";
                 }
 
                 query = "";
