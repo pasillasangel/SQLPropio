@@ -47,7 +47,7 @@ regex cCrearBaseDatos("^(crear basedatos\\s[A-Za-z](\\w)+|CREAR BASEDATOS\\s[A-Z
 regex cUsarBaseDatos("^(usar\\s[A-Za-z](\\w)+|USAR\\s[A-Za-z](\\w)+)$");
 regex cMostrarBaseDatos("^(mostrar basedatos|MOSTRAR BASEDATOS)$");
 regex cEliminarBaseDatos("^(eliminar basedatos\\s[A-Za-z](\\w)+|ELIMINAR BASEDATOS\\s[A-Za-z](\\w)+)$");
-regex cRetirarBaseDatos("^(retirar basedatos|RETIRAR BASEDATOS)$");
+regex cRetirarBaseDatos("^(retirar|RETIRAR)$");
 //--
 regex cCrearTabla("^(crear tabla\\s[A-Za-z](\\w)+|CREAR TABLA\\s[A-Za-z](\\w)+)$");
 regex cEliminarTabla("^(eliminar tabla\\s[A-Za-z](\\w)+|ELIMINAR TABLA\\s[A-Za-z](\\w)+)$");
@@ -583,14 +583,69 @@ void verificar_usuario_contrasenaADMIN(TCadena nombreFichero,Persona_R &password
 void PrincipalComun(TCadena nombreFichero)
 {
 	system("cls");
+    //######
+    //Crear tabla
+    //######
+    //Para salir del ciclo de ingrsar 'campos'
+    bool bandera = false;
+    //Para saber cuando se repitio un campo
+    bool repetir = false;
+    //Para contar cada palabra y tomar solo TIPO DE DATO y validarlo
+    int cPalabra = 0;
+    //Para saber que solo se ingreso una llave primaria
+    bool bPrimario = false;
+    //Si por alguna razon hubo error al ingresar campos, que elimine los archivos temp
+    bool errorAtr = false;
+    //Arreglo de string para almacenar los campos  (para que no se repitan) y su contador
+    string arrayGA[TAM];
+    //Su propio contador
+    int contadorGA = 0;
 
+    //Almanecenara el TIPO DE DATO
+    string GetTP = "";
+
+    //Almanecenara todo la instruccion
+    string query = "";
+
+
+    //Explicar tabla
+    int cCantidadCampos = 0;
+    int numCampos = 0;
+    int adentroAUX = 0;
+    int adentro = 0;
+    string save[TAM];
+    string arrayleerCampos[TAM];
+
+    int num_campos = 0;
+    int cTipoDato = 0;
+    int campoExitoso = 0;
+    string arrayTipoDato[TAM];
+    string arrayNombresCampos[TAM];
+
+    //Insertar
+    bool bandInsertar = false;
+    bool bandValidCampo = false;
+    int contadorInsertar = 0;
+    string CamposInsert[TAM];
+    string arrayExitoso[TAM];
+    string axuCampos = "";
+
+
+
+    string nombreBaseDatos = "";
+    //string rutabasedatos = "c:/BaseDeDatos/BD/";
+    string rutabasedatos = "c:\\BaseDeDatos\\BD\\";
+    string tempNombre = "";
+    string rutaDefinitiva = "";
+    string rutaDefinitiva1 = "";
+    string nombreTabla = "";
 	bool salida = false;
-	int mensajeInicio = 0;
+	char desicion;
 
-	do
-	{
+	while(salida!= true)
+    {
 		string consulta = "";
-
+        rutaDefinitiva = "";
 		if (mensajeInicio == 0)
 		{
 			//http://www.network-science.de/ascii/ - doom
@@ -604,54 +659,508 @@ void PrincipalComun(TCadena nombreFichero)
 			cout <<""<<endl;
 			cout <<""<<endl;
 			cout<<"Bienvenido a la Base de Datos."<<endl;
-			cout<<"Te haz conectado con la cuenta de: ";puts(nombreFichero);
+			cout<<"Te haz conectado con la cuenta con privilegios de: "; puts(nombreFichero);
 			cout<<"Version de la Base de Datos: 1.0.1"<<endl;
 			cout<<"Creada por Ana Maria Chipres Castellanos y Miguel Angel Pasillas Luis. <c> 2016"<<endl;
 
-			mensajeInicio = 1;
+            cout<<""<<endl;
+            cout<<"Escriba -a para obtener ayuda. Escribe -l para limpiar pantalla. \nEscribe -com para mostrar todos los comandos."<<endl;
 
-		cout<<""<<endl;
-		cout<<"Escriba -a para obtener ayuda. Escribe -l para limpiar pantalla. \nEscribe -com para mostrar todos los comandos."<<endl;
+            mensajeInicio = 1;
 		}
 
-		cout<<""<<endl;
-		cout<<"SQL> "; cin>>consulta;
+        if(nombreBaseDatos=="")
+        {
+            cout<<""<<endl;
+            cout<<"SQL> ";
+            getline(cin, consulta, '\n');
+        }
+        else
+        {
+            cout<<""<<endl;
+            cout<<"SQL ["<<nombreBaseDatos<<"]> ";
+            getline(cin, consulta, '\n');
+        }
 
-		if(consulta=="-a")
+
+        //Mostrar ayuda
+		if(regex_match(consulta,cAyuda))
 		{
-			cout<<"                  "<<endl;
-			cout<<"                    ___                  _"<<endl;
-			cout<<"                   / _ \\                | | "<<endl;
-			cout<<"                  / /_\\ \\_   _ _   _  __| | __ _ "<<endl;
-			cout<<"                  |  _  | | | | | | |/ _` |/ _` |"<<endl;
-			cout<<"                  | | | | |_| | |_| | (_| | (_| |"<<endl;
-			cout<<"                  \\_| |_/\\__, |\\__,_|\\__,_|\\__,_|"<<endl;
-			cout<<"                          __/ | "<<endl;
-			cout<<"                         |___/  "<<endl;
-			cout<<"                  --MENSAJES DE AYUDA--"<<endl;
-		}
-		else if(consulta=="-l")
+            Comando_Ayuda();
+		}//Limpiar pantalla
+		else if(regex_match(consulta,cLimpiar))
 		{
 			system("cls");
-		}
-		else if(consulta=="-com")
+		}//Mostrar todos los comandos
+		else if(regex_match(consulta,cComando))
 		{
-			cout<<"                   _____                                 _"<<endl;
-			cout<<"                  /  __ \\                               | | "<<endl;
-			cout<<"                  | /  \\/ ___  _ __ ___   __ _ _ __   __| | ___  ___ "<<endl;
-			cout<<"                  | |    / _ \\| '_ ` _ \\ / _` | '_ \\ / _` |/ _ \\/ __|"<<endl;
-			cout<<"                  | \\__/\\ (_) | | | | | | (_| | | | | (_| | (_) \\__ \\"<<endl;
-			cout<<"                   \\____/\\___/|_| |_| |_|\\__,_|_| |_|\\__,_|\\___/|___/"<<endl;
-			cout<<"--TODOS LOS COMANDOS--"<<endl;
-		}
-		else if(consulta=="salir")
+            Comando_Comandos();
+		}//Salir
+		else if(regex_match(consulta,cSalir))
 		{
-			cout<<"Presione cualquier tecla para salir...";
-			salida = true;
-		}
+            cout<<"\t¿Seguro que desea salir? (S/N): ";
+            cin>>desicion;
+            if (desicion == 'S' || desicion == 's')
+            {
+                cout<<"Cerrando el programa..."<<endl;
+                Sleep(3000);
+                exit(0);
+            }
+		}//Creacion de Usuarios -- ADMIN
+		else if(regex_match(consulta,cCrearUsuario))
+		{
+            cout<<"\n\tNecesita una cuenta con privilegios."<<endl;
+		}//Mostrar el usuario con el que se esta conectado
+		else if(regex_match(consulta,cUsuario))
+        {
+            cout<<"Te haz conectado con la cuenta de: "; puts(nombreFichero);
+        }//Mostrar todos los usuarios administradores -- ADMIN
+        else if(regex_match(consulta, cMostrarUsuariosAdmin))
+        {
+            Comando_Mostrar_Usuarios_Admin();
+        }
+        else if(regex_match(consulta, cMostrarUsuariosComunes))
+        {
+            Comando_Mostrar_Usuarios_Comunes();
+        }
+        else if(regex_match(consulta, cMostrarBaseDatos))
+        {
+            Comando_Mostrar_BaseDatos();
+        }
+        else if (regex_match(consulta, cUsarBaseDatos))
+        {
+            istringstream isstream(consulta);
+            while(!isstream.eof()){
+                string tempStr;
+                isstream >> tempStr;
+                tempNombre = tempStr;
+            }
+            rutaDefinitiva = rutabasedatos + tempNombre;
+            if (Buscar_Bd(rutaDefinitiva))
+            {
+                nombreBaseDatos = tempNombre;
+                cout<<" -> Usando la Base de Datos '"<< nombreBaseDatos <<"' <-"<<endl;
+            }
+            else
+            {
+                cout<<"-> NO se encontro la base de datos '"<< tempNombre <<"'.Intente con otro nombre. <-"<<endl;
+            }
+        }
+        else if(regex_match(consulta, cCrearBaseDatos))
+        {
+            cout<<"\n\tNecesita una cuenta con privilegios."<<endl;
+        }
+        else if(regex_match(consulta, cEliminarBaseDatos))
+        {
 
-	}while(salida!= true);
-	pausaSinMensaje();
+            cout<<"\n\tNecesita una cuenta con privilegios."<<endl;
+        }
+        else if(regex_match(consulta,cEliminarUsuarios))
+        {
+            cout<<"\n\tNecesita una cuenta con privilegios."<<endl;
+        }
+        else if(regex_match(consulta, cCerrar))
+        {
+            cout<<"\t¿Seguro que desea cerrar sesion? (S/N): ";
+            cin>>desicion;
+            if (desicion == 'S' || desicion == 's')
+            {
+                cout<<"Cerrando sesion..."<<endl;
+                Sleep(3000);
+                salida = true;
+            }
+        }
+        else if (regex_match(consulta, cCrearTabla))
+        {
+            cout<<"\n\tNecesita una cuenta con privilegios."<<endl;
+        }
+        else if(regex_match(consulta, cRetirarBaseDatos))
+        {
+            if (nombreBaseDatos=="")
+            {
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
+            }
+            else
+            {
+                cout<<" ->Retirada la Base de datos '" + nombreBaseDatos + "' CORRECTAMENTE. <-"<<endl;
+                nombreBaseDatos = "";
+            }
+        }
+        else if(regex_match(consulta, cEliminarTabla))
+        {
+            cout<<"\n\tNecesita una cuenta con privilegios."<<endl;
+        }
+        else if(regex_match(consulta, cMostrarTablas))
+        {
+            if(nombreBaseDatos=="")
+            {
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
+            }
+            else
+            {
+                istringstream isstream(consulta);
+                while(!isstream.eof()){
+                    string tempStr;
+                    isstream >> tempStr;
+                    tempNombre = tempStr;
+                }
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\Tablas";
+
+                Comando_Mostrar_Tablas(rutaDefinitiva);
+            }
+        }
+        else if (regex_match(consulta, cExplicarTabla))
+        {
+            if(nombreBaseDatos=="")
+            {
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
+            }
+            else
+            {
+                //Cortar para obtener el nombre de la tabla
+                istringstream isstream(consulta);
+                while(!isstream.eof())
+                {
+                    string tempStr;
+                    isstream >> tempStr;
+                    tempNombre = tempStr;
+                }
+
+                //Tabla
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\Tablas\\" + tempNombre;
+                //Atributos
+                rutaDefinitiva1 = rutabasedatos + nombreBaseDatos + "\\Atributos\\" + tempNombre + ".txt";
+
+                //Buscar la tabla
+                if (!is_file(rutaDefinitiva1))
+                {
+                    cout<<"-> La tabla '" + tempNombre + "'que desea EXPLICAR no existe. Intente con otro nombre.<-"<<endl;
+                    //SLEEEEP
+                }
+                else
+                {
+                    cCantidadCampos = 0;
+                    numCampos = 0;
+                    adentroAUX = 0;
+                    adentro = 0;
+                    query = "";
+
+                    string variablez = "";
+                    int longQ = 0;
+
+                    //variable de lectura
+                    ifstream leerCampos;
+                    //Leer el archivo
+                    leerCampos.open(rutaDefinitiva1,ios::out|ios::in);
+
+                    //Abrir archivo (siempre se abrira y no habra error, porque si existe)
+                    if(leerCampos.is_open())
+                    {
+                        //######################################################
+                        //Contar el numero campos
+                        //######################################################
+
+                        //lectura adelantada
+                        leerCampos>>save[cCantidadCampos];
+                        while(!leerCampos.eof())
+                        {
+                            arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+                            cCantidadCampos++;
+                            leerCampos>>save[cCantidadCampos];
+
+                            //Es divisible de tres, entonces
+                            if((cCantidadCampos%3)==0)
+                            {
+                                numCampos++;
+                            }
+
+                        }
+                        //guardar el ultimo valor
+                        arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+
+                        //Para que no salga impar, y se haga par y se pueda dividir
+                        cCantidadCampos++;
+
+                        //###########################################
+                        //EXPLICAR CADA ATRIBUTO
+                        //###########################################
+                        cout<<endl;
+                        cout<<"|----------------------------------------------------|"<<endl;
+                        cout<<"|       CAMPO       |    TIPO    |       LLAVE       |"<<endl;
+                        cout<<"|----------------------------------------------------|"<<endl;
+                        //Insertar los archivos en el archivo
+                        do
+                        {
+                            for (int i = 0; i<3; i++)
+                            {
+                                variablez = save[adentro];
+                                longQ = variablez.length();
+                                if(longQ<=2)
+                                {
+                                    cout<<"        "<<save[adentro]<<"         ";
+                                }
+                                else if (longQ>2 && longQ<=6)
+                                {
+                                    cout<<"      "<<save[adentro]<<"       ";
+                                }
+                                else if (longQ>6 && longQ<10)
+                                {
+                                    cout<<"    "<<save[adentro]<<"    ";
+                                }
+                                else
+                                {
+                                    cout<<"    "<<save[adentro]<<"    ";
+                                }
+                                adentro++;
+                            }
+                            cout<<endl;
+                            adentroAUX++;
+
+                        }while(adentroAUX<numCampos);
+                        cout<<"|----------------------------------------------------|"<<endl;
+                    }
+                    //Cerrar la lectura
+                    leerCampos.close();
+
+                    //Limpiar arreglos
+                    for(unsigned int i = 0; i < TAM; i++)
+                    {
+                        arrayleerCampos[i] = "";
+                        save[i] = "";
+                    }
+
+                    query = "";
+
+                }
+            }
+        }
+        else if(regex_match(consulta,cInsertarTabla))
+        {
+            cout<<"\n\tNecesita una cuenta con privilegios."<<endl;
+        }
+        else if(regex_match(consulta, cSeleccionarTabla))
+        {
+            if(nombreBaseDatos=="")
+            {
+                cout<<"Primero debes de seleccionar una base de datos con el comando USAR nombre_bd"<<endl;
+                cout<<"Teclea -a para ayuda o -com para ver todos los comandos."<<endl;
+            }
+            else
+            {
+                //Cortar para obtener el nombre de la tabla
+                istringstream isstream(consulta);
+                while(!isstream.eof())
+                {
+                    string tempStr;
+                    isstream >> tempStr;
+                    tempNombre = tempStr;
+                }
+
+                //Tabla
+                rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\Tablas\\" + tempNombre;
+                //Atributos
+                rutaDefinitiva1 = rutabasedatos + nombreBaseDatos + "\\Atributos\\" + tempNombre + ".txt";
+
+                //Buscar la tabla
+                if (!is_file(rutaDefinitiva1))
+                {
+                    cout<<"-> La tabla '" + tempNombre + "'que desea insertar no existe. Intente con otro nombre.<-"<<endl;
+                    //SLEEEEP
+                }
+                else
+                {
+                    cCantidadCampos = 0;
+                    numCampos = 0;
+                    cTipoDato = 0;
+                    adentroAUX = 0;
+                    adentro = 0;
+                    query = "";
+                    string variabley = "";
+                    int camposReales = 0;
+                    int longQ = 0;
+
+                    //variable de lectura
+                    ifstream leerCampos;
+                    //Leer el archivo
+                    leerCampos.open(rutaDefinitiva1,ios::out|ios::in);
+
+                    //Abrir archivo (siempre se abrira y no habra error, porque si existe)
+                    if(leerCampos.is_open())
+                    {
+                        //######################################################
+                        //Contar el numero campos
+                        //######################################################
+
+                        //lectura adelantada
+                        leerCampos>>save[cCantidadCampos];
+                        while(!leerCampos.eof())
+                        {
+                            arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+                            cCantidadCampos++;
+                            leerCampos>>save[cCantidadCampos];
+                        }
+
+                        //Contar los atriburoa
+                        while(!leerCampos.eof())
+                        {
+                            getline(leerCampos,variabley);
+                        }
+
+                        //guardar el ultimo valor
+                        arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+
+                        //Para que no salga impar, y se haga par y se pueda dividir
+                        cCantidadCampos++;
+
+                        //Contando y leyendo los campos
+                        getline(leerCampos,variabley);
+                        istringstream isstream(variabley);
+                        while(!isstream.eof())
+                        {
+                            string tempStr;
+                            isstream >> tempStr;
+                            //tempNombre = tempStr;
+                            camposReales++;
+                        }
+
+                        //######################################################
+                        //Conocer los nombres de los campos
+                        //######################################################
+                        for(int i = 0; i<(cCantidadCampos-1); i=i+3)
+                        {
+                            arrayNombresCampos[cTipoDato]=arrayleerCampos[i];
+                            cTipoDato++;
+
+                        }
+                        //Imprimiendo los CAMPOS de la tabla
+                        cout<<"-----------------------------------------------------------------------------------------------"<<endl;
+                        for(int i = 0; i<=cTipoDato; i++)
+                        {
+                            variabley = arrayNombresCampos[i];
+                            longQ = variabley.length();
+                            if(longQ<=2)
+                            {
+                                cout<<"     "<<arrayNombresCampos[i]<<"      ";
+                            }
+                            else if (longQ>2 && longQ<=6)
+                            {
+                                cout<<"     "<<arrayNombresCampos[i]<<"     ";
+                            }
+                            else if (longQ>6 && longQ<10)
+                            {
+                                cout<<"    "<<arrayNombresCampos[i]<<"    ";
+                            }
+                            else
+                            {
+                                cout<<"    "<<arrayNombresCampos[i]<<"    ";
+                            }
+                        }
+                        cout<<"\n--------------------------------------------------------------------------------------------"<<endl;
+
+
+                        //Limpiar datos
+                        for(unsigned int i = 0; i < TAM; i++)
+                        {
+                            arrayleerCampos[i] = "";
+                            arrayNombresCampos[i] = "";
+                            save[i] ="";
+                        }
+                        cCantidadCampos = 0;
+                        variabley = "";
+
+
+                        //Cerrar la lectura
+                        leerCampos.close();
+
+                        //variable de lectura
+                        ifstream leerDatos;
+                        //Leer el archivo
+                        leerDatos.open(rutaDefinitiva,ios::out|ios::in);
+
+
+                        if(leerDatos.is_open())
+                        {
+
+                            //lectura adelantada
+                            leerDatos>>save[cCantidadCampos];
+                            while(!leerDatos.eof())
+                            {
+                                arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+                                cCantidadCampos++;
+                                leerDatos>>save[cCantidadCampos];
+
+                                //Es divisible de tres, entonces
+                                if((cCantidadCampos%3)==0)
+                                {
+                                    numCampos++;
+                                }
+                            }
+
+                            //guardar el ultimo valor
+                            arrayleerCampos[cCantidadCampos] = save[cCantidadCampos];
+
+                            //Para que no salga impar, y se haga par y se pueda dividir
+                            cCantidadCampos++;
+
+                            do
+                            {
+                                for (int i = 0; i<cTipoDato; i++)
+                                {
+                                    variabley = save[adentro];
+                                    longQ = variabley.length();
+                                    if(longQ<=2)
+                                    {
+                                        cout<<"        "<<save[adentro]<<"         ";
+                                    }
+                                    else if (longQ>2 && longQ<=6)
+                                    {
+                                        cout<<"      "<<save[adentro]<<"       ";
+                                    }
+                                    else if (longQ>6 && longQ<10)
+                                    {
+                                        cout<<"    "<<save[adentro]<<"    ";
+                                    }
+                                    else
+                                    {
+                                        cout<<"    "<<save[adentro]<<"    ";
+                                    }
+                                    adentro++;
+                                }
+                                cout<<endl;
+                                adentroAUX++;
+
+                            }while(adentroAUX<numCampos);
+                            cout<<"--------------------------------------------------------------------------------------------"<<endl;
+
+                        }
+
+
+                    }
+
+                    //Limpiar arreglos
+                    for(unsigned int i = 0; i < TAM; i++)
+                    {
+                        arrayleerCampos[i] = "";
+                        arrayNombresCampos[i] = "";
+                        save[i] ="";
+                    }
+
+                }
+            }
+        }
+        else if(consulta=="")
+        {
+            //Nada, para que no muestra error
+        }
+        else
+        {
+            cout <<"Error: Error en su comando."<<endl;
+        }
+	}
+	//pausaSinMensaje();
 
 }
 
@@ -1244,11 +1753,13 @@ void PrincipalADMIN(TCadena nombreFichero)
                 cin>>desicion;
                 if (desicion == 'S' || desicion == 's')
                 {
-                    rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\" + tempNombre;
+                    rutaDefinitiva = rutabasedatos + nombreBaseDatos + "\\Tablas\\" + tempNombre;
+                    rutaDefinitiva1 = rutabasedatos + nombreBaseDatos + "\\Atributoa\\" + tempNombre + ".txt";
 
                     if(is_file(rutaDefinitiva))
                     {
                         Comando_Eliminar_Usuario(rutaDefinitiva);
+                        Comando_Eliminar_Usuario(rutaDefinitiva1);
                         cout<<" -> La Tabla '"<< tempNombre <<"' ha sido eliminado correctamente. <-"<<endl;
                     }
                     else
@@ -2077,7 +2588,15 @@ void Comando_Ayuda()
     cout<<"                  \\_| |_/\\__, |\\__,_|\\__,_|\\__,_|"<<endl;
     cout<<"                          __/ | "<<endl;
     cout<<"                         |___/  "<<endl;
-    cout<<"                  --MENSAJES DE AYUDA--"<<endl;
+    cout<<"\n\n\t\tCREAR TABLA"<<endl;
+    cout<<"\n\nEn el momento de crear una tabla con el comando CREAR TABLA NOMBRE_TABLA ingresamos Campo y Tipo de Dato a ingresar seguido de una coma (,)";
+    cout<<" seguido del siguiente Campo y Tipo de Dato a ingresar, asi sucesivamente hasta llegar al ultimo campo. En el ultimo campo se agrega dos punto (:)";
+    cout<<" para dar un salgo de linea e introducir un nuevo registro. Si ya no se quieren introducir mas campos nuevos se termina la instruccion"<<endl;
+    cout<<" con un punto y coma (;)."<<endl;
+    cout<<"\n\n\t\tINSERTAR EN"<<endl;
+    cout<<"\n\nEn el momento de crear una tabla con el comando INSERTAR EN NOMBRE_TABLA aparecera ayuda donde mostrara el nombre del campo y sus respectivos campos";
+    cout<<" alli ingresamos los datos seguido de coma (,) para separalo del siguiente dato.";
+    cout<<""<<endl;
 }
 
 void Comando_Comandos()
