@@ -212,7 +212,7 @@ int main()
 
             //Creacion la tabla ejemplo 1
             ofstream ejemploTabla1;
-            ejemploTabla1.open ("c:/BaseDeDatos/BD/Ejemplo2/Tablas/Alumnos.txt");
+            ejemploTabla1.open ("c:/BaseDeDatos/BD/Ejemplo1/Atributos/Alumnos.txt");
             ejemploTabla1 << "NumControl ent PRINCIPAL" << endl;
             ejemploTabla1 << "Nombre var NO" << endl;
             ejemploTabla1 << "ApellidoP var NO"<< endl;
@@ -223,7 +223,7 @@ int main()
 
             //Agregando datos a la tabla 1
             ofstream ejemploTabla1Archivo;
-            ejemploTabla1Archivo.open ("c:/BaseDeDatos/Usuarios/Alumnos");
+            ejemploTabla1Archivo.open ("c:/BaseDeDatos/BD/Ejemplo1/Tablas/Alumnos");
             ejemploTabla1Archivo << "14210475 Ana Chipres Castellanos 6 ISC" << endl;
             ejemploTabla1Archivo << "14210423 Angel Pasillas Luis 6 ISC" << endl;
             ejemploTabla1Archivo << "14210434 Maria Castellanos Chipres 7 ISC" << endl;
@@ -232,7 +232,7 @@ int main()
 
                 //Creacion la tabla ejemplo 1
             ofstream ejemploTabla2;
-            ejemploTabla2.open ("c:/BaseDeDatos/Usuarios/Materias.txt");
+            ejemploTabla2.open ("c:/BaseDeDatos/BD/Ejemplo1/Atributos/Materias.txt");
             ejemploTabla2 << "Clave ent PRINCIPAL" << endl;
             ejemploTabla2 << "Materia var NO" << endl;
             ejemploTabla2 << "Dias var NO"<< endl;
@@ -242,7 +242,7 @@ int main()
 
             //Agregando datos a la tabla 1
             ofstream ejemploTabla2Archivo;
-            ejemploTabla2Archivo.open ("c:/BaseDeDatos/Usuarios/Materias");
+            ejemploTabla2Archivo.open ("c:/BaseDeDatos/BD/Ejemplo1/Tablas/Materias");
             ejemploTabla2Archivo << "0971 AdmonBD L-V 6 ISC" << endl;
             ejemploTabla2Archivo << "0973 Automatas L-V 6 ISC" << endl;
             ejemploTabla2Archivo << "0975 Simulacion L-V 6 ISC" << endl;
